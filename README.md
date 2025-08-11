@@ -30,6 +30,7 @@ Disaster Recovery – Strategies to restore services after catastrophic failures
 
 Distributed Tracing – Tracking requests across multiple services in a distributed system.
 
+
 2. 🛠️ Building Blocks
    
 APIs – Interface for communication between services.
@@ -86,6 +87,7 @@ Microservices Guidelines – Best practices for modular service design.
 
 Distributed Locking – Ensuring only one process accesses shared resource at a time.
 
+
 3. ⚖️ Trade-offs
    
 Vertical vs Horizontal Scaling
@@ -112,6 +114,7 @@ Latency vs Throughput
 
 Top 15 Common Trade-offs – Balancing performance, cost, complexity, maintainability.
 
+
 4. 🖇️ Architectural Patterns
    
 Client-Server Architecture – Central server serving multiple clients.
@@ -123,6 +126,7 @@ Serverless Architecture – Functions executed on demand without managing server
 Event-Driven Architecture – Components communicate via events.
 
 Peer-to-Peer (P2P) Architecture – Nodes act as both clients and servers.
+
 ---------------------------------------------------------
 ---------------------------------------------------------
 
@@ -154,6 +158,7 @@ DRY Principle – Don’t Repeat Yourself.
 YAGNI Principle – You Aren’t Gonna Need It.
 
 KISS Principle – Keep It Simple, Stupid.
+
 
 ⚙️ Design Patterns 
 
@@ -194,6 +199,7 @@ Definition: Creates objects by cloning an existing object (prototype).
 Use Case: Avoid costly object creation from scratch.
 
 Example: car.clone() creates a copy with the same properties.
+
 
 2️⃣ Structural Patterns
 Focus: Object composition and structure.
@@ -246,6 +252,7 @@ Definition: Acts as a placeholder to control access to another object.
 Use Case: Lazy initialization, access control, logging.
 
 Example: ImageProxy loads the image only when needed.
+
 
 3️⃣ Behavioral Patterns
 Focus: Object interaction & responsibility distribution.
@@ -319,6 +326,7 @@ Definition: Passes requests along a chain of handlers until one processes it.
 Use Case: Logging, request validation.
 
 Example: AuthHandler → DataHandler → ResponseHandler.
+
 
 🗂️ UML Diagrams
 Class Diagram – Represents classes, attributes, methods, and relationships.
