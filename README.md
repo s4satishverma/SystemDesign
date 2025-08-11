@@ -1,6 +1,7 @@
 📚 System Design Essentials
 
 1. Key Concepts
+   
 Scalability – Ability of a system to handle increased load by adding resources.
 
 Availability – Ensuring the system is operational and accessible when needed.
@@ -30,6 +31,7 @@ Disaster Recovery – Strategies to restore services after catastrophic failures
 Distributed Tracing – Tracking requests across multiple services in a distributed system.
 
 2. 🛠️ Building Blocks
+   
 APIs – Interface for communication between services.
 
 Content Delivery Network (CDN) – Distributes content closer to users for faster access.
@@ -85,6 +87,7 @@ Microservices Guidelines – Best practices for modular service design.
 Distributed Locking – Ensuring only one process accesses shared resource at a time.
 
 3. ⚖️ Trade-offs
+   
 Vertical vs Horizontal Scaling
 
 Concurrency vs Parallelism
@@ -110,6 +113,7 @@ Latency vs Throughput
 Top 15 Common Trade-offs – Balancing performance, cost, complexity, maintainability.
 
 4. 🖇️ Architectural Patterns
+   
 Client-Server Architecture – Central server serving multiple clients.
 
 Microservices Architecture – Independent services communicating via APIs.
@@ -129,6 +133,7 @@ Peer-to-Peer (P2P) Architecture – Nodes act as both clients and servers.
 Basics of OOP – Encapsulation, Inheritance, Polymorphism, Abstraction.
 
 SOLID Principles
+
 Single Responsibility Principle (SRP):
 A class should have only one reason to change, meaning it should have a single responsibility.
 
