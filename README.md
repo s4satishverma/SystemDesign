@@ -1,5 +1,7 @@
 📚 System Design Essentials
 
+<image src="https://github.com/s4satishverma/SystemDesign/blob/main/images/hld_lld.png"></image>
+
 1. Key Concepts
    
 Scalability – Ability of a system to handle increased load by adding resources.
