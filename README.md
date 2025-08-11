@@ -2,6 +2,8 @@
 
 <image src="https://github.com/s4satishverma/SystemDesign/blob/main/images/hld_lld.png"></image>
 
+📚 High-Level Design (LLD) Resources
+
 1. Key Concepts
    
 Scalability – Ability of a system to handle increased load by adding resources.
@@ -132,7 +134,7 @@ Peer-to-Peer (P2P) Architecture – Nodes act as both clients and servers.
 ---------------------------------------------------------
 ---------------------------------------------------------
 
-📚 Low-Level Design (LLD) / Object-Oriented Design (OOD) Resources
+📚 Low-Level Design (LLD) Resources
 
 📌 Fundamental Concepts
 
