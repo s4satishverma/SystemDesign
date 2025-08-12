@@ -342,3 +342,4 @@ Sequence Diagram – Depicts interaction between components over time.
 Activity Diagram – Models workflow and actions in a process.
 
 State Machine Diagram – Describes states and transitions of a system/component.
+
