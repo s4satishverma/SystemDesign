@@ -32,7 +32,6 @@ traffic cop of your system.
   There are different types:
     L4/L7 Load Balancers: L4 (Transport Layer) balancers operate on IP and port, while L7 (Application Layer)
     balancers can inspect the request's content (e.g., HTTP headers, URL path) to make smarter routing decisions.
-
 Algorithms: Common algorithms include round-robin (sending requests to servers in a cyclical order), 
 least connections (sending to the server with the fewest active connections), and consistent hashing 
 (ensuring a request from a specific client always goes to the same server, which is useful for caching).
@@ -46,22 +45,26 @@ You need to choose a strategy for cache management:
 Cache-Aside: The application checks the cache first, and if the data isn't there (a "cache miss"),
               it fetches it from the database and populates the cache. This is a very common pattern.
 Write-Through: The application writes data to both the cache and the database simultaneously.
+
 Asynchronous Processing: Instead of doing everything in one long, synchronous request, you can use message
       queues (like SQS) or message streams (like Kafka) to decouple tasks. A user request might trigger an
       event (e.g., "send an email"), which is placed on a queue. A separate "worker" service then picks up
       that message and processes it.This prevents a slow task from blocking the main user experience.
+
 Data Partitioning (Sharding): Sharding is the process of splitting a large database into smaller, more 
       manageable parts called "shards." Each shard contains a subset of your data. 
 Range Sharding: Divides data based on a range of values (e.g., user IDs 1-1000 on shard 1, 1001-2000 on shard 2).
       Can lead to hotspots if a specific range of data is accessed disproportionately.
 Hash Sharding: Uses a hash function to distribute data evenly across shards. This avoids hot spots but makes range
       queries difficult. Consistent Hashing is a clever technique that minimizes data movement when adding or removing
-      shards, making rebalancing much more efficient. 
+      shards, making rebalancing much more efficient.
+
 Replication: Creating multiple copies of your data for redundancy and read scalability. 
 Leader-Follower: One database is the "leader" and handles all writes, while one or more "followers" replicate the 
        data and handle read requests. 
 Multi-Leader/Leaderless: Allows for writes to be sent to multiple nodes, which increases write availability but 
 makes conflict resolution more complex.
+
 Autoscaling: The automatic adjustment of computing resources based on predefined metrics like CPU utilization, 
 requests per second (RPS), or queue depth. This allows your system to handle fluctuating loads efficiently and
 cost-effectively.
