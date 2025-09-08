@@ -39,7 +39,7 @@ CA (Consistency + Availability)
 Works only if there are no partitions (like in single-node databases).
 In practice, since partitions are inevitable in distributed systems, this combination is theoretical only.
 
-🛠️ Practical Strategies Beyond CAP
+Practical Strategies Beyond CAP
 Engineers rarely stick to just CAP. Instead, they use strategies like:
 Eventual Consistency
 Updates eventually reach all nodes.
