@@ -1,1 +1,97 @@
+What is CAP Theorem?
+The CAP Theorem, introduced by Eric Brewer in 2000, explains the trade-offs in distributed systems.
 
+It says:
+In a distributed system, you can only guarantee 2 out of 3 properties at the same time:
+Consistency (C)
+Availability (A)
+Partition Tolerance (P)
+
+Think of it like a triangle — you can only stand on 2 corners at once.
+
+The 3 Pillars of CAP
+1. Consistency (C)
+Every read returns the latest write or an error.
+Example: If you transfer money from Account A to B in a banking app, and immediately check your balance, both nodes should reflect the updated balance.
+This is critical for financial systems or inventory systems where accuracy matters.
+
+2. Availability (A)
+Every request gets a non-error response, but it might not be the most recent data.
+Example: On Amazon, when you add an item to your cart, the system almost never fails, even during Black Friday. The cart is always available, but sometimes the backend may take a few seconds to sync the latest stock.
+Here, being online is more important than having perfectly up-to-date data.
+
+3. Partition Tolerance (P)
+The system keeps running even if parts of the network can’t talk to each other.
+Example: Imagine Netflix servers split into two groups due to a network failure. Users connected to one group should still be able to stream movies, even if not all servers are in sync.
+In real-world distributed systems, partitions are inevitable — networks fail, packets drop, and latency spikes.
+That’s why Partition Tolerance is usually a must-have. Then the real trade-off is between Consistency and Availability.
+
+The Trade-Offs (Choosing 2 of 3)
+CP (Consistency + Partition Tolerance)
+Prioritizes accuracy, but sacrifices availability during a partition.
+Example: Banking system or ATM network. If there’s a network issue, it might reject your transaction instead of risking inconsistent balances.
+
+AP (Availability + Partition Tolerance)
+Prioritizes uptime, but sacrifices strict consistency.
+Example: Amazon shopping cart. It will always accept your items, even if nodes temporarily disagree on the count. Eventually, they sync up.
+
+CA (Consistency + Availability)
+Works only if there are no partitions (like in single-node databases).
+In practice, since partitions are inevitable in distributed systems, this combination is theoretical only.
+
+🛠️ Practical Strategies Beyond CAP
+Engineers rarely stick to just CAP. Instead, they use strategies like:
+Eventual Consistency
+Updates eventually reach all nodes.
+Example: DNS or Content Delivery Networks (CDNs).
+
+Strong Consistency
+Ensures immediate correctness.
+Example: Inventory systems where overselling must not happen.
+
+Tunable Consistency
+Allows flexibility per query.
+Example: Cassandra lets you choose strong consistency for critical transactions and eventual consistency for less critical ones.
+
+Quorum-Based Approaches (R+W>N)
+Uses majority voting among nodes.
+Example: Say you have 5 nodes (N=5).
+You set W=3 (write must go to at least 3 nodes).
+You set R=3 (read must be from at least 3 nodes).
+Now:
+If a client writes data, at least 3 nodes must store it.
+When another client reads, it will check 3 nodes.
+Because 3+3 > 5, the read is guaranteed to touch at least 1 node that has the latest write.
+
+🌍 Beyond CAP: PACELC Theorem
+CAP only talks about partitions, but what if the network is healthy?
+That’s where PACELC comes in:
+If there’s a Partition (P) → trade-off between Availability (A) and Consistency (C).
+Else (E) → trade-off between Latency (L) and Consistency (C).
+Example: Even when partitions don’t exist, sometimes you sacrifice consistency to reduce latency (like in geo-distributed databases).⏱️ 4:45 – Conclusion
+
+So remember:
+CAP Theorem = you can’t have all 3
+Real-life systems choose based on business needs
+Banking → consistency
+E-commerce → availability
+Netflix/CDN → partition tolerance + availability
+The secret is not picking the “best” property, but choosing wisely for your use case.
+
+Here’s a simple CAP triangle you can use:
+
+             Consistency (C)
+                   /\
+                  /  \
+                 /    \
+                /      \
+      CA (ideal, no P)  CP (Banking, SQL DBs)
+              /          \
+             /            \
+            /              \
+           /                \
+ Availability (A) ---- AP (Amazon, DynamoDB) ---- Partition Tolerance (P)
+
+ Banking / SQL DB → CP
+ Amazon Cart / DynamoDB → AP
+ Single-node DB → CA
