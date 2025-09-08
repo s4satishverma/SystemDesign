@@ -63,7 +63,7 @@ If a client writes data, at least 3 nodes must store it.
 When another client reads, it will check 3 nodes.
 Because 3+3 > 5, the read is guaranteed to touch at least 1 node that has the latest write.
 
-🌍 Beyond CAP: PACELC Theorem
+Beyond CAP: PACELC Theorem
 CAP only talks about partitions, but what if the network is healthy?
 That’s where PACELC comes in:
 If there’s a Partition (P) → trade-off between Availability (A) and Consistency (C).
