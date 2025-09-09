@@ -1,4 +1,4 @@
-What is Availability? 🔄
+What is Availability? 
 Simple Definition: Availability is how much time your system is up and running when users need it.
 Think of it like a store - if a store is open 99% of the time, that's its availability rate.
 Formula to Calculate Availability
@@ -8,40 +8,40 @@ Key Terms:
 Uptime: Time when your system works perfectly
 Downtime: Time when your system is broken or under maintenance
 
-Real Example 📊
+Real Example 
 If your website has 99.9% availability in a year:
 
 Total minutes in a year: 525,600 minutes
 Allowed downtime: 525.6 minutes (about 8.76 hours)
 That means your site can only be down for less than 9 hours the entire year!
 
-Availability Tiers (The "Nines") 📈
+Availability Tiers (The "Nines") 
 AvailabilityDowntime per YearWhat it means90%36.5 daysTerrible - avoid this99%3.65 daysBasic99.9%8.76 hoursGood99.99%52.6 minutesVery Good99.999%5.26 minutesExcellent
 Remember: Each extra "9" is 10x better than the previous level!
-Why is Availability Super Important? 🎯
+Why is Availability Super Important? 
 1. Happy Users = Happy Business
 
 Users get frustrated when apps/websites don't work
 Unhappy users = lost customers
 
-2. Money Matters 💰
+2. Money Matters 
 
 Every minute of downtime = lost revenue
 Amazon loses millions per minute when down
 Small businesses lose customers to competitors
 
-3. Legal Stuff ⚖️
+3. Legal Stuff 
 
 Many contracts have SLAs (Service Level Agreements)
 Breaking SLAs = paying penalties
 Some industries have legal requirements
 
-4. Competitive Edge 🏆
+4. Competitive Edge 
 
 More reliable system = more customers
 Trust builds over time, breaks instantly
 
-How to Achieve High Availability 🛠️
+How to Achieve High Availability 
 1. Redundancy (Have Backups!)
 Simple Rule: Never put all eggs in one basket
 Types:
@@ -100,7 +100,7 @@ PagerDuty
 OpsGenie
 CloudWatch
 
-Best Practices for High Availability 🎯
+Best Practices for High Availability 
 1. Design for Failure
 
 Assume everything will break eventually
@@ -131,7 +131,7 @@ Reduces load on main servers
 Black Friday, viral content, sudden popularity
 Auto-scaling helps handle unexpected load
 
-Common Availability Patterns 🏗️
+Common Availability Patterns 
 1. Active-Passive Setup
 Primary Server (Active) ←→ Backup Server (Passive)
         ↓
@@ -149,7 +149,7 @@ Users → CDN → Load Balancer
         Servers   Servers
            ↓         ↓
        Database  Database
-Key Takeaways for Your System Design 📝
+Key Takeaways for Your System Design 
 
 Start with Requirements: How much downtime can your business tolerate?
 Eliminate Single Points of Failure: If losing one component breaks everything, fix it
@@ -158,7 +158,7 @@ Test Your Failover: Practice switching to backups before you need to
 Balance Cost vs Availability: Each extra "9" costs significantly more
 Document Your Recovery Process: When systems fail, you need clear steps to fix them
 
-Real-World Examples 🌍
+Real-World Examples 
 High Availability Systems:
 
 Google: 99.99%+ availability
@@ -172,6 +172,6 @@ Facebook outage (2021): $100+ million lost
 AWS outage: Thousands of websites go down
 Banking system down: ATMs stop working globally
 
-Remember This Formula 🧠
+Remember This Formula 
 High Availability = Redundancy + Monitoring + Fast Recovery
 The goal isn't to prevent all failures (impossible), but to recover so quickly that users barely notice!
