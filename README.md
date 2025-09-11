@@ -2,7 +2,7 @@ System Design Essentials
 
 <image src="https://github.com/s4satishverma/SystemDesign/blob/main/images/hld_lld.png"></image>
 
-📚 High-Level Design (LLD) Resources
+High-Level Design (LLD) Resources
 
 1. Key Concepts
    
