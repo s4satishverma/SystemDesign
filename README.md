@@ -35,7 +35,7 @@ Disaster Recovery – Strategies to restore services after catastrophic failures
 Distributed Tracing – Tracking requests across multiple services in a distributed system.
 
 
-2. 🛠️ Building Blocks
+2. Building Blocks
    
 APIs – Interface for communication between services.
 
