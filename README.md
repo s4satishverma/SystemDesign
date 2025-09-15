@@ -92,7 +92,7 @@ Microservices Guidelines – Best practices for modular service design.
 Distributed Locking – Ensuring only one process accesses shared resource at a time.
 
 
-3. ⚖️ Trade-offs
+3. Trade-offs
    
 Vertical vs Horizontal Scaling
 
