@@ -1,0 +1,20 @@
+What ACID Stands For:
+
+Atomicity: All operations in a transaction succeed or all fail together
+It show a transaction that partially fails and gets rolled back
+Example: Transferring money between bank accounts → debit and credit must both happen, or neither.
+
+Consistency: Database remains in a valid state before and after transactions. It demonstrate how constraints prevent invalid data states
+Example: After the transfer, the total money in both accounts remains correct.
+
+Isolation: Concurrent transactions don't interfere with each other
+It show how concurrent transactions are handled without conflicts
+Example: Two people booking the same flight seat won’t end up with double booking.
+
+Durability: Committed changes persist even after system failures
+It explain how committed data survives crashes
+Example: If you transfer money and the system restarts, the result is still saved.
+
+Relatable analogy - like transferring money between bank accounts. If you're moving $100 from Account A to Account B, you need both the debit and credit to happen, or neither should happen. This immediately shows why ACID matters.
+
+Real-world scenarios: e-commerce orders, banking operations, or social media posts where data integrity is critical.
