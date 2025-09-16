@@ -119,7 +119,7 @@ Latency vs Throughput
 Top 15 Common Trade-offs – Balancing performance, cost, complexity, maintainability.
 
 
-4. 🖇️ Architectural Patterns
+4. Architectural Patterns
    
 Client-Server Architecture – Central server serving multiple clients.
 
