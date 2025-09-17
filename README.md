@@ -134,7 +134,7 @@ Peer-to-Peer (P2P) Architecture – Nodes act as both clients and servers.
 ---------------------------------------------------------
 ---------------------------------------------------------
 
-📚 Low-Level Design (LLD) Resources
+Low-Level Design (LLD) Resources
 
 📌 Fundamental Concepts
 
