@@ -136,7 +136,7 @@ Peer-to-Peer (P2P) Architecture – Nodes act as both clients and servers.
 
 Low-Level Design (LLD) Resources
 
-📌 Fundamental Concepts
+Fundamental Concepts
 
 Basics of OOP – Encapsulation, Inheritance, Polymorphism, Abstraction.
 
