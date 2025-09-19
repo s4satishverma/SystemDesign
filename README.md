@@ -164,9 +164,9 @@ YAGNI Principle – You Aren’t Gonna Need It.
 KISS Principle – Keep It Simple, Stupid.
 
 
-⚙️ Design Patterns 
+Design Patterns 
 
-1️⃣ Creational Patterns
+Creational Patterns
 Focus: Object creation mechanisms.
 
 1. Singleton
