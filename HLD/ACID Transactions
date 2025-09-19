@@ -1,4 +1,4 @@
-What ACID Stands For:
+What ACID Stands For
 
 Atomicity: All operations in a transaction succeed or all fail together
 It show a transaction that partially fails and gets rolled back
