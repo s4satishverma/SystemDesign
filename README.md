@@ -6,13 +6,13 @@ High-Level Design (LLD) Resources
 
 1. Key Concepts
    
-Scalability – Ability of a system to handle increased load by adding resources.
+Scalability – Ability of a system to handle increased load by adding resources.......Done
 
-Availability – Ensuring the system is operational and accessible when needed.
+Availability – Ensuring the system is operational and accessible when needed........Done
 
-CAP Theorem – Trade-off between Consistency, Availability, and Partition Tolerance in distributed systems.
+CAP Theorem – Trade-off between Consistency, Availability, and Partition Tolerance in distributed systems.......Done
 
-ACID Transactions – Atomicity, Consistency, Isolation, Durability in databases.
+ACID Transactions – Atomicity, Consistency, Isolation, Durability in databases........Done
 
 Consistent Hashing – Distributes data across nodes with minimal re-distribution when nodes are added/removed.
 
