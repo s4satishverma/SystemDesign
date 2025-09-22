@@ -258,7 +258,7 @@ Use Case: Lazy initialization, access control, logging.
 Example: ImageProxy loads the image only when needed.
 
 
-3️⃣ Behavioral Patterns
+3. Behavioral Patterns
 Focus: Object interaction & responsibility distribution.
 
 1. Iterator
@@ -332,7 +332,7 @@ Use Case: Logging, request validation.
 Example: AuthHandler → DataHandler → ResponseHandler.
 
 
-🗂️ UML Diagrams
+UML Diagrams
 Class Diagram – Represents classes, attributes, methods, and relationships.
 
 Use Case Diagram – Shows system functionality from the user’s perspective.
