@@ -1,1 +1,43 @@
+What is Consistent Hashing? 
+Think of consistent hashing like assigning tasks to friends in a fair way — even if some friends leave or new friends join, you don’t have to reshuffle everything. 
 
+Example 1: Pizza Delivery 
+Imagine you have 3 pizza shops in a city. 
+Each customer’s address is assigned to a shop based on a simple rule (say, house number % 3). 
+Problem : If one shop closes or a new shop opens, all addresses get reshuffled → chaos! 
+Solution : With consistent hashing, only the customers near that shop get reassigned. The rest keep ordering from the same shop. 
+ 
+Example 2: Amazon Warehouses 
+Amazon has multiple warehouses across the country. 
+Every order is assigned to the nearest warehouse.
+If one warehouse goes down (fire, maintenance, etc.), only nearby orders are reassigned — not the whole country. 
+That’s consistent hashing → minimal disruption. 
+
+What Actually Happens in Consistent Hashing 
+Normal Hashing (the problem) 
+Suppose we have 4 servers (S1, S2, S3, S4). 
+To decide where to store a key (say, user123), we do: 
+hash(user123) % 4 
+If we add another server (S5), the formula becomes % 5. 
+Result → Almost all keys get remapped → too much data movement.
+ 
+Consistent Hashing (the solution) 
+Imagine a circular ring (0 to MAX value of hash function). 
+Servers (S1, S2, S3, S4) are placed on the ring based on their hash values. 
+Keys (like user123, order456, etc.) are also placed on the ring. 
+Each key belongs to the first server clockwise from its position. 
+Example: 
+Ring: [S1 → S2 → S3 → S4] 
+user123 might land between S2 and S3 → so it goes to S3. 
+
+When a server is added/removed 
+Add new server S5 → only the keys between S4 and S5 move to S5. 
+Remove S2 → only the keys that belonged to S2 are reassigned (to S3). 
+The rest of the keys stay exactly where they were. 
+That’s the magic → minimal re-distribution.
+
+Extra Trick (Virtual Nodes) 
+To balance load better, each server is mapped to multiple points on the ring. 
+Example: S1 might appear 3 times on the ring (S1a, S1b, S1c). 
+This ensures even distribution of keys. 
+ 
