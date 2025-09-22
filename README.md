@@ -205,7 +205,7 @@ Use Case: Avoid costly object creation from scratch.
 Example: car.clone() creates a copy with the same properties.
 
 
-2️⃣ Structural Patterns
+2.Structural Patterns
 Focus: Object composition and structure.
 
 1. Adapter
