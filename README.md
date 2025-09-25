@@ -14,7 +14,7 @@ CAP Theorem – Trade-off between Consistency, Availability, and Partition Toler
 
 ACID Transactions – Atomicity, Consistency, Isolation, Durability in databases........Done
 
-Consistent Hashing – Distributes data across nodes with minimal re-distribution when nodes are added/removed.
+Consistent Hashing – Distributes data across nodes with minimal re-distribution when nodes are added/removed.......Done
 
 Rate Limiting – Controlling the number of requests a client can make in a given period.
 
