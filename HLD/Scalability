@@ -7,7 +7,7 @@ Think of it like a restaurant. If it gets more customers (load), it needs more c
 to keep service fast (SLO). 
 
 There are two primary ways to scale:
-Vertical Scaling (Scaling Up) 📈: This involves adding more resources to a single machine, such as a bigger CPU,
+Vertical Scaling (Scaling Up): This involves adding more resources to a single machine, such as a bigger CPU,
 more RAM, or a larger hard drive. It's like upgrading one chef to a master chef. It's simple and fast to implement,
 but you'll eventually hit a physical limit, and the cost per unit of resource can be very high.
 
