@@ -1,4 +1,4 @@
-System Design Essentials
+System Design Essentials:
 
 <image src="https://github.com/s4satishverma/SystemDesign/blob/main/images/hld_lld.png"></image>
 
