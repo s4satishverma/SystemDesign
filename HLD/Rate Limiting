@@ -1,0 +1,85 @@
+What is Rate Limiting?
+Rate Limiting means controlling how many requests a user (or client) can send to your system in a fixed time window.
+Think of it like saying:
+You can only ask me 10 questions per minute. If you ask more, I’ll ignore or block you for some time.
+This protects the system from being:
+	• Overloaded (too many requests at once)
+	• Misused (spam, bots, brute force attacks)
+	• Unfair (one user consuming all resources)
+
+Analogies
+	1. Toll Booth Example 
+Imagine a toll booth on a highway.
+		○ The toll collector only lets 5 cars per minute pass through.
+		○ If the 6th car comes, it has to wait for the next minute.
+		○ This ensures traffic flows smoothly without jamming the bridge/road.
+	Similarly, in software, rate limiting ensures the system doesn’t crash due to too many requests.
+
+	2. Water Tap with Flow Restrictor 
+A water tap has a flow restrictor – no matter how much pressure is applied, it only lets a fixed amount of water per second.
+APIs use rate limiting to only allow, say, 100 requests per second from each client.
+
+Common Rate Limiting Algorithms
+
+	1. Fixed Window Counter
+		○ Example: Allow 100 requests per user per minute.
+		○ If you cross the limit, you’re blocked until the next minute.
+Problem: If a user sends all 100 requests in the last second of the minute and then again 100 in the first second of the next minute → burst load.
+		
+	Imagine dividing time into boxes (windows). Each user gets a counter per box.
+	
+	Time:  |----1 min----|----1 min----|----1 min----|
+User A: [■■■■■■■■■■] Allowed  (10/10)
+              [■■■■■■■■■■■■■■■■■■■■] Blocked (20/10)
+	 If a user exceeds the limit (say 10 requests per minute), extra requests in that minute are blocked.
+		
+
+	2. Sliding Window
+		○ Keeps track of requests in a rolling time window.
+		○ Example: If you made 100 requests from 12:00–12:59, at 1:00, the counter doesn’t reset suddenly — it gradually slides.
+		○ Smoother than fixed window.
+	
+	Instead of hard boxes, it slides continuously.
+		Requests Timeline (last 60s):
+[■■■     ■■■■     ■■■■■]
+	Check: In the last 60s, user made 12 requests → Limit 10 → Block
+	This avoids the "burst at the window edge" problem.
+		
+
+	3. Token Bucket (Most Popular)
+		○ Imagine you have a bucket with tokens.
+		○ Each request needs a token.
+		○ Tokens refill at a fixed rate (e.g., 5 per second).
+		○ If the bucket is empty, requests are rejected (or queued).
+Advantage: Allows small bursts but still controls average rate.
+Example: Twitter API → “You can post 300 tweets per 3 hours”.
+		Visualize a bucket of tokens that refill at a constant rate. Each request removes one token.
+		
+		Bucket Capacity: 5 tokens
+Refill Rate: 1 token/sec
+		Time:
+t=0: [●●●●●]   (5 tokens) → All requests pass
+t=2: [●●]      (after 3 requests used)
+t=5: [●●●●]    (refilled slowly)
+
+		Allows small bursts but controls average rate.
+		
+
+	4. Leaky Bucket
+		○ Similar to token bucket, but tokens leak out at a fixed rate.
+		○ Prevents burst traffic completely.
+		Like water dripping out at a fixed speed.
+		
+		Bucket Queue:
+[Req1] → leak → processed
+[Req2] → leak → processed
+[Req3 Req4 Req5] → Waiting
+
+		Ensures steady processing speed, no sudden bursts.
+		
+
+Examples
+	• Twitter/X API → Only a limited number of tweets/read requests per 15 minutes.
+	• GitHub API → 5000 requests per hour per user.
+	• Login systems → After 5 wrong attempts, you must wait for a cooldown.
+YouTube comments → Can’t spam 100 comments in 1 minute, there’s a limit.
