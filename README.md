@@ -16,7 +16,7 @@ ACID Transactions – Atomicity, Consistency, Isolation, Durability in databases
 
 Consistent Hashing – Distributes data across nodes with minimal re-distribution when nodes are added/removed.......Done
 
-Rate Limiting – Controlling the number of requests a client can make in a given period.
+Rate Limiting – Controlling the number of requests a client can make in a given period...... Done
 
 Single Point of Failure (SPOF) – A component whose failure can bring down the system.
 
