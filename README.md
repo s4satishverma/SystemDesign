@@ -4,7 +4,7 @@ System Design Essentials:
 
 High-Level Design (HLD) Resources:
 
-1. Key Concepts
+1. Key Concepts:
    
 Scalability – Ability of a system to handle increased load by adding resources.......Done
 
