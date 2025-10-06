@@ -1,1 +1,48 @@
+What is a Single Point of Failure?
+A Single Point of Failure is any component in a system—hardware, software, network, or even a process—that, if it fails, causes the entire system to stop working.
+In simpler terms, it’s a bottleneck. If it breaks, everything else downstream fails too.
+And in high-level design, avoiding SPOFs is one of the key goals.
+
+ Examples of Single Points of Failure
+	1. Monolithic Database:
+If your entire application depends on a single database instance, and that DB crashes, your whole app goes down.
+	2. Load Balancer as SPOF:
+Even a load balancer, which is designed to distribute traffic, can be a SPOF if there’s only one instance and it fails.
+	3. Single Web Server:
+One application server? If it crashes, users get nothing.
+	
+Where SPOFs Appear in High-Level Design
+When creating a High-Level Design (HLD), SPOFs can appear in:
+	• Application Layer: Single backend, API gateway, or microservice
+	• Data Layer: Single database, cache layer (e.g., Redis), or file storage
+	• Infrastructure Layer: Load balancers, DNS servers, CDNs
+	• Networking: Single router, firewall, or network switch
+
+How to Avoid SPOFs in HLD
+	1. Redundancy:
+Add multiple instances of critical components. For example:
+		○ Use replicated databases
+		○ Deploy multiple app servers
+		○ Use redundant load balancers
+	2. Failover Mechanisms:
+Ensure that when one component fails, traffic or workload shifts automatically to a backup. Think of active-passive or active-active setups.
+	3. Monitoring & Alerting:
+Detect issues early before they become outages. Use tools like Grafana etc.
+	4. Auto-scaling & Health Checks:
+Use cloud services to automatically scale up instances and check the health of services.
+	5. Decentralization:
+In distributed systems, avoid putting too much responsibility on one component. Split duties between microservices or nodes.
+
+Real-Life Analogy
+Think of a Single Point of Failure like a traffic signal at a busy junction. If that signal breaks down and there’s no backup or police control, the whole area goes into chaos. Similarly, in systems, SPOFs can bring your architecture to a standstill.
+
+Design Tip for Interviews
+In interviews, always ask yourself: “If this component goes down, what happens to the system?”
+If the answer is “everything stops”, that’s your SPOF.
+and 
+interviewers love to see candidates proactively addressing SPOFs with design patterns like replication, sharding, failover, and graceful degradation."
+
+ Industry Best Practices
+	AWS/Azure/GCP: All offer high availability zones to remove SPOFs
+  Kubernetes: Ensures replica sets and auto-healing to handle failure at the pod level
 
