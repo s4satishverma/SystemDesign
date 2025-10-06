@@ -18,7 +18,7 @@ Consistent Hashing – Distributes data across nodes with minimal re-distributio
 
 Rate Limiting – Controlling the number of requests a client can make in a given period...... Done
 
-Single Point of Failure (SPOF) – A component whose failure can bring down the system.
+Single Point of Failure (SPOF) – A component whose failure can bring down the system........Done
 
 Fault Tolerance – Ability to continue functioning despite failures.
 
