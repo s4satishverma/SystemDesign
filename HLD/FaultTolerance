@@ -1,0 +1,80 @@
+What Is Fault Tolerance?
+Fault tolerance means a system keeps working even when part of it fails.
+It doesn’t crash or stop — instead, it detects, isolates, and recovers from the fault automatically.
+
+Think of it as: Even if one part breaks, the system as a whole continues to work.
+
+Imagine you’re driving a car with a spare tire.
+If one tire punctures, you replace it with the spare and keep going — you don’t abandon the trip.
+That’s fault tolerance in daily life.
+
+Technical Definition
+In distributed systems or cloud infrastructure, fault tolerance ensures high availability and reliability despite hardware crashes, network issues, or software bugs.
+
+How Systems Achieve Fault Tolerance
+Here are the main strategies used:
+
+1. Redundancy
+Having backup components ready to take over when one fails.
+Example: Multiple servers behind a load balancer.
+If one server goes down, traffic is redirected to others automatically.
+
+2. Replication
+Keeping multiple copies of data or services.
+Example: In AWS S3, your data is stored across multiple availability zones (AZs).
+If one data center fails, another copy is still available.
+
+3. Failover Mechanism
+Automatic switch to a standby component.
+Example: A database cluster with a primary and replica.
+If the primary database crashes, the system promotes the replica to primary instantly.
+
+4. Graceful Degradation
+System doesn’t crash completely — instead, it offers limited functionality.
+Example: During a Netflix outage in one region, the app might still allow you to browse movies but not play them until recovery.
+
+5. Health Checks & Monitoring
+Regular checks detect and remove unhealthy nodes.
+Example: Kubernetes continuously monitors pods.
+If a pod stops responding, it creates a new one automatically.
+
+Fault Tolerance vs High Availability
+Concept 		Meaning	Example
+Fault Tolerance		System continues without interruption when a failure occurs.		Flight control systems with redundant computers.
+High Availability		System minimizes downtime (short interruption possible).		Web app using load balancer and auto-scaling groups.
+
+So — fault tolerance is stronger than just high availability.
+
+Common Examples in Day-to-Day Tech
+
+Cloud Services (AWS, Azure, GCP):
+Replicate instances across multiple regions for resilience.
+
+Databases:
+MySQL/MongoDB replica sets, Cassandra’s multi-node replication.
+
+Microservices Architecture:
+Circuit breakers (like Hystrix or Resilience4j) prevent cascading failures.
+
+E-commerce Websites:
+If “recommendation” service fails, the “checkout” should still work.
+
+Containers/Kubernetes:
+Self-healing pods that restart automatically on crash.
+
+Day2Day Example
+Electricity Backup: Your home UPS or generator kicks in during power failure.
+→ System keeps running.
+
+Multiple Internet Connections: Office has Wi-Fi + 5G backup.
+→ Even if Wi-Fi fails, connectivity continues.
+
+Core Building Blocks of a Fault-Tolerant System
+Redundant Components
+Error Detection
+Automatic Recovery
+Isolation of Failures
+Monitoring & Alerts
+
+“Imagine your app is like a restaurant. If one chef suddenly leaves, the restaurant doesn’t shut down — another chef takes over the kitchen. That’s fault tolerance in action.
+In tech systems, we do the same — backup servers, replicated databases, auto-healing pods. The goal? No customer should even notice something went wrong.”
