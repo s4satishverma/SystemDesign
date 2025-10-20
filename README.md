@@ -20,7 +20,7 @@ Rate Limiting – Controlling the number of requests a client can make in a give
 
 Single Point of Failure (SPOF) – A component whose failure can bring down the system........Done
 
-Fault Tolerance – Ability to continue functioning despite failures.
+Fault Tolerance – Ability to continue functioning despite failures........Done
 
 Consensus Algorithms – Mechanisms like Raft, Paxos to achieve agreement among distributed nodes.
 
