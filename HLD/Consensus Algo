@@ -1,0 +1,65 @@
+What is Consensus?
+Consensus means getting multiple computers to agree on the same thing — like what data to store, who's the leader, or which order events happened in.
+Why does this matter?
+Because in distributed systems, you have many servers working together. If they don't agree, you get chaos — duplicate orders, lost data, or conflicting information.
+
+Let's see
+Imagine you and 4 friends are planning a trip together, but you're all in different cities. You need to agree on:
+	• Where to go
+	• When to leave
+	• Who's booking the hotel
+If everyone just does their own thing without coordinating, you'll end up with 5 different hotel bookings and nobody knows where to meet.
+Consensus = The process of coordinating so everyone agrees, even if someone's phone dies or they stop responding.
+
+Why Do We Need Consensus in Systems?
+Let's say you're building an e-commerce app with 5 servers handling orders:
+	• A customer buys the last iPhone in stock
+	• All 5 servers need to know: "This iPhone is now sold out"
+	• Without consensus, 2 servers might still think it's available → overselling
+Consensus ensures all servers see the same inventory at the same time.
+
+Common Problems Consensus Solves
+
+Problem	Without Consensus	With Consensus
+Leader election	Two servers both think they're the boss → conflicts	All servers agree on one leader
+Data replication	Server A has version 1, Server B has version 2 → inconsistency	All servers agree on the latest version
+Order of events	Server A processes payment first, Server B cancels order first → chaos	All servers agree on the order
+
+Simple Example: Who's the Leader?
+You have 3 database replicas. One needs to be the primary (leader) to handle writes.
+Without consensus:
+	• Server 1 says: "I'm the leader!"
+	• Server 2 says: "No, I'm the leader!"
+	• Server 3 is confused
+→ Result: Split brain — data corruption
+With consensus (e.g., Raft algorithm):
+	• Servers vote
+	• Majority picks Server 1
+	• Everyone agrees and follows Server 1
+→ Result: Clean, consistent writes
+
+Types of Consensus (System Design Perspective)
+1. Leader-Based Consensus 
+	• Used in: Databases (MongoDB, etc), Kubernetes, Kafka
+	• How it works: One leader makes decisions, others follow
+	• Example: A team lead assigns tasks — everyone knows who's in charge
+2. Quorum-Based Consensus
+	• Used in: Distributed databases (Cassandra, DynamoDB)
+	• How it works: Majority vote wins (e.g., 3 out of 5 servers must agree)
+	• Example: A jury — you need more than half to agree on a verdict
+3. Gossip Protocols
+	• Used in: Service discovery (Consul), cluster membership
+	• How it works: Nodes share info with neighbours, who share with others (like spreading rumours)
+	• Example: Office gossip — eventually everyone knows the news
+
+Real-World Use Cases
+ E-commerce (Inventory Management)
+	• 5 servers handle product stock
+	• Customer buys last item
+	• Consensus ensures all servers update instantly → no overselling
+ Kubernetes (Container Orchestration)
+	• Multiple master nodes decide where to run containers
+	• Consensus ensures they don't duplicate work or conflict
+
+Summary
+"Consensus is like a group chat vote — it makes sure all your servers agree on important decisions, even when some are slow, offline, or misbehaving."
