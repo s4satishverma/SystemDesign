@@ -1,0 +1,25 @@
+The Gossip Protocol (also called Epidemic Protocol) is a peer-to-peer communication mechanism used in distributed systems to spread information across all nodes in a cluster, in a scalable, fault-tolerant, and eventually consistent way.
+
+Imagine you’re in an office of 100 employees:
+	• You tell 3 colleagues that there’s free pizza in the cafeteria.
+	• Each of them tells 3 more people, and so on.
+	• Within minutes, everyone knows, even if you didn’t personally tell them.
+You didn’t need a manager to send a broadcast email.
+It’s fast, redundant, and resilient (even if someone’s offline, the news still spreads).
+This is exactly how Gossip Protocol spreads system state across distributed nodes.
+
+How It Works (Step-by-Step)
+Let’s say we have 10 servers in a distributed system.
+	1. Each node periodically wakes up (say every 1 second).
+	2. It picks a few random peers (e.g., 2 nodes) and sends them the latest state (e.g., “I’m alive”, “Node 4 is down”).
+	3. Those peers merge this info with their own and continue gossiping in the next round.
+	4. After a few rounds, all nodes converge on the same view of the cluster.
+This ensures eventual consistency and avoids overloading any central coordinator.
+
+System Design 
+Example: Cassandra / DynamoDB Cluster
+When you insert data into an Amazon DynamoDB or Apache Cassandra cluster:
+	• Each node maintains metadata about which nodes are alive and how data is replicated.
+	• Instead of relying on a central heartbeat monitor, each node uses gossip to share its view of the cluster (up/down status, data version, etc.).
+	• Even if one node goes down, others will quickly learn through gossip and reroute traffic.
+Result: No single point of failure, faster fault detection, scalable membership management.
