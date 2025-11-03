@@ -22,7 +22,7 @@ Single Point of Failure (SPOF) – A component whose failure can bring down the 
 
 Fault Tolerance – Ability to continue functioning despite failures........Done
 
-Consensus Algorithms – Mechanisms like Raft, Paxos to achieve agreement among distributed nodes.
+Consensus Algorithms – Mechanisms like Raft, Paxos to achieve agreement among distributed nodes....Done
 
 Gossip Protocol – Decentralized communication for spreading information across nodes.
 
