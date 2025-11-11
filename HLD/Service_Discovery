@@ -1,0 +1,37 @@
+In a microservices architecture, you may have dozens or hundreds of services — user-service, payment-service, notification-service, etc.
+Each service runs on different machines, ports, or containers, and instances scale dynamically (up or down) based on load.
+So the big question is: “How does one service know where another service is running right now?”
+The answer: Service Discovery  
+It’s a mechanism that allows services to find and communicate with each other automatically — without hardcoding IP addresses or URLs.
+
+Analogy (Restaurant Waiters)
+Imagine a restaurant where:
+	• Customers (API requests) walk in and ask for “Pizza Service.”
+	• The Host Desk (Service Registry) keeps track of which chefs (service instances) are currently active and available.
+	• The Waiter (Client or API Gateway) checks the registry, finds an available chef, and forwards the order there.
+The host updates this list dynamically as chefs (services) start or stop.
+That’s service discovery in action — dynamic and fault-tolerant.
+
+How It Works (Step-by-Step)
+There are two main types of Service Discovery:
+A. Client-Side Discovery
+	• Each service (client) queries a Service Registry (like Eureka or Consul) to find where to send requests.
+	• The client performs load balancing itself.
+B. Server-Side Discovery
+	• A Load Balancer or API Gateway talks to the Service Registry.
+	• Clients just send all requests to the gateway — it routes them appropriately.
+
+System Design Example: Netflix Eureka & Spring Cloud
+	• Each microservice registers itself to Eureka Server upon startup (saying “Hey, I’m user-service at IP:10.0.1.2:8080”).
+	• Eureka maintains a dynamic list of all registered services.
+	• When order-service needs to call user-service, it queries Eureka → gets a healthy instance → calls it.
+	• If a node crashes, Eureka removes it after a timeout (heartbeat missed).
+Result: Self-healing system with zero hardcoded dependencies.
+
+Key Components
+Component	Responsibility
+Service Registry	Central database of all active services and their endpoints
+Service Provider	The microservice that registers itself
+Service Consumer	The microservice that queries the registry to find others
+Heartbeat	Periodic signal to ensure service is alive
+Load Balancer	Distributes traffic among discovered instances
