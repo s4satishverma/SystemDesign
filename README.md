@@ -24,7 +24,7 @@ Fault Tolerance – Ability to continue functioning despite failures........Done
 
 Consensus Algorithms – Mechanisms like Raft, Paxos to achieve agreement among distributed nodes....Done
 
-Gossip Protocol – Decentralized communication for spreading information across nodes.
+Gossip Protocol – Decentralized communication for spreading information across nodes......Done
 
 Service Discovery – Automatically locating services in dynamic environments.
 
