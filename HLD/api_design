@@ -1,1 +1,291 @@
+What is Good API Design? 
 
+Good API design is not about code; it’s about experience. 
+
+A great API should be: 
+
+Predictable – no surprises 
+
+Consistent – same patterns everywhere 
+
+Readable – easily guessable endpoints 
+
+Expandable – easy to add features later 
+
+Safe – handles versioning & backward compatibility 
+
+Example: 
+Bad: /createUser 
+Good: /users with POST 
+
+APIs should communicate meaning without documentation. 
+
+ 
+API Design Principles 
+
+1. Resource-Oriented Design 
+
+Follow REST-style resource mapping: 
+
+Nouns, not verbs 
+
+/users, /accounts, /transactions 
+
+Example: 
+
+GET /orders  
+
+POST /orders 
+
+GET /orders/{id}  
+
+PUT /orders/{id}  
+
+DELETE /orders/{id}  
+
+ 
+
+2. Consistent Naming Conventions 
+
+Use lowercase, hyphen-separated or plural nouns. 
+
+Avoid mixing patterns. 
+
+Bad: /getUserDetailsByID/123 
+Good: /users/123 
+
+ 
+
+3. Proper Use of HTTP Methods 
+
+GET → retrieve 
+
+POST → create 
+
+PUT → full update 
+
+PATCH → partial update 
+
+DELETE → remove 
+
+ 
+
+4. Clear Status Codes 
+
+Use meaningful HTTP codes: 
+
+200 OK 
+
+201 Created 
+
+400 Bad Request 
+
+401 Unauthorized 
+
+403 Forbidden 
+
+404 Not Found 
+
+409 Conflict 
+
+500 Internal Server Error 
+
+Don’t always return 200. 
+
+ 
+Designing Request & Response Models 
+
+1. Request Body 
+
+Keep the structure clean: 
+
+Bad: 
+
+{ "firstname": "John", "lname": "Doe", "usrZip": "23921" }  
+
+Good: 
+
+{ "firstName": "John", "lastName": "Doe", "zipCode": "23921" }  
+
+ 
+
+2. Response Structure 
+
+Always return a predictable structure: 
+
+{ "status": "success", "data": {...}, "timestamp": "2025-11-23T14:00:00Z", "requestId": "abc123" }  
+
+This helps with logging, debugging, and tracing in distributed systems. 
+
+ 
+
+3. Pagination 
+
+GET /users?page=1&limit=20  
+
+Response: 
+
+{ "items": [...], "page": 1, "limit": 20, "totalPages": 10, "totalItems": 200 }  
+
+ 
+ 
+
+Error Handling & Documentation 
+
+ 
+
+1. Error Response Structure 
+
+Use consistent error formats: 
+
+{ "status": "error", "message": "Invalid email address", "code": "INVALID_EMAIL", "details": [] }  
+
+ 
+
+2. Validation Errors 
+
+{ "errors": [ { "field": "email", "message": "Email cannot be empty" } ] }  
+
+ 
+
+3. Documentation 
+
+Use tools like: 
+
+Swagger / OpenAPI 
+
+Postman Collections 
+
+Springdoc (Spring Boot) 
+
+Good APIs are self-explanatory—but documentation accelerates adoption. 
+
+ 
+Versioning & Backward Compatibility 
+
+Versioning strategies: 
+
+1. URI Versioning 
+
+GET /v1/users  
+
+ 
+
+2. Header Versioning 
+
+Accept: application/vnd.company.v1+json  
+
+ 
+
+When to Version? 
+
+Breaking changes 
+
+Removing fields 
+
+Changing response structure 
+
+Never break existing clients suddenly. 
+
+ 
+Security & Rate Limiting 
+
+Authentication & Authorization 
+
+OAuth 2.0 
+
+JWT tokens 
+
+API keys 
+
+ 
+
+Rate Limiting 
+
+To protect APIs from abuse: 
+
+Token bucket 
+
+Fixed window counter 
+
+Sliding window 
+
+Example: 
+
+429 Too Many Requests  
+
+ 
+ 
+
+Scalability Considerations 
+
+1. Idempotency 
+
+Ensure safe retries. 
+
+PUT /orders/123 PATCH /wallet/topup  
+
+ 
+
+2. Async Operations 
+
+For long-running tasks: 
+
+Webhooks 
+
+Event-driven architecture 
+
+Message queues (Kafka/RabbitMQ) 
+
+ 
+
+3. Caching 
+
+Redis 
+
+CDN 
+
+HTTP caching (ETag, Cache-Control) 
+
+ 
+
+4. Database Query Optimization 
+
+Design APIs based on access patterns: 
+
+Avoid n+1 queries 
+
+Use filters: /transactions?customerId=10&year=2024 
+
+
+Examples 
+
+User Registration Service 
+
+POST /users 
+
+{  
+
+  "firstName": "Satish",  
+
+  "lastName": "Verma",  
+
+  "email": "satish@example.com",  
+
+"phone": "+1-416000-0000"  
+
+}  
+
+Success: 
+
+201 CREATED { "userId": "U1288281", "status": "created" }  
+
+ 
+
+Payment Transaction API 
+
+POST /payments 
+
+PATCH /payments/{id}/status 
+
+GET /payments/{id}  
