@@ -28,7 +28,7 @@ Gossip Protocol – Decentralized communication for spreading information across
 
 Service Discovery – Automatically locating services in dynamic environments........Done
 
-API Design – Structuring APIs for usability, maintainability, and scalability.
+API Design – Structuring APIs for usability, maintainability, and scalability......Done
 
 Disaster Recovery – Strategies to restore services after catastrophic failures.
 
