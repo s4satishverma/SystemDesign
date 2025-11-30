@@ -1,0 +1,54 @@
+In a distributed world, failures will happen — data center outages, cloud region failures, accidental deletions, or network collapses.
+Disaster Recovery (DR) is the strategy that ensures your system can bounce back quickly and minimize downtime when such disasters strike.
+Think of DR as your “Plan B” for survival - when something goes terribly wrong, you still deliver service to users.
+
+Imagine you’re a cab driver earning daily income from your car.
+One day, your car’s engine blows up (disaster!).
+You have two options:
+	• Option A: Wait a week to fix it (no income = downtime).
+	• Option B: You already have a spare car, or a friend ready to lend one immediately (backup system).
+That backup car plan = your Disaster Recovery Strategy
+The same idea applies to tech systems — when one data center crashes, another takes over.
+
+Why Disaster Recovery Matters
+	• Downtime = Money loss (think: Amazon loses ~$220K per minute during outage)
+	• User Trust: Users switch quickly if your app is down.
+	• Compliance: Some industries (finance, healthcare) require DR planning.
+
+Core Components of Disaster Recovery
+Term	Meaning
+RTO (Recovery Time Objective)	How quickly can you restore service?
+RPO (Recovery Point Objective)	How much data loss is acceptable? (e.g., last 5 mins of transactions)
+Backup	Copy of your data/config stored separately
+Failover	Switching from primary to backup system automatically
+Replication	Continuous copying of data to another location
+Redundancy	Having multiple systems ready in parallel
+
+Common Disaster Recovery Strategies
+Let’s break down the 4 major DR strategies 
+
+	1. Backup & Restore (Low Cost, Slow Recovery)
+	• Take daily or hourly backups (e.g., to S3, Google Cloud Storage).
+	• In case of disaster, restore the backup to a new environment.
+	• Cheapest, but high RTO (can take hours to recover).
+A startup stores MySQL backups on AWS S3 nightly.
+If production fails, they spin up a new EC2 instance and restore last night’s backup.
+
+	2. Pilot Light (Small-Scale Warm Backup)
+	• Keep a minimal version of your environment running in another region.
+	• During disaster → scale it up quickly.
+AWS keeps critical services (databases, configurations) always running in a secondary region.
+When primary fails, auto-scaling kicks in and spins up full infrastructure.
+
+	3. Warm Standby (Partial Capacity Always On)
+	• Keep a scaled-down but fully functional clone of production running in another region.
+	• Automatically redirect traffic during failure.
+An e-commerce site keeps a 50% capacity cluster live in Europe while primary runs in North America.
+If NA fails, Europe scales to 100%.
+
+	4. Active-Active (High Cost, Instant Recovery)
+	• Both (or multiple) regions are fully active simultaneously.
+	• Real-time data replication between them.
+	• Traffic load balanced globally.
+	• Near-zero downtime, near-zero data loss.
+Netflix and Google Cloud operate in multi-region active-active mode — if one region goes down, users are instantly routed to another.
