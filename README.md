@@ -30,7 +30,7 @@ Service Discovery – Automatically locating services in dynamic environments...
 
 API Design – Structuring APIs for usability, maintainability, and scalability......Done
 
-Disaster Recovery – Strategies to restore services after catastrophic failures.
+Disaster Recovery – Strategies to restore services after catastrophic failures.......Done
 
 Distributed Tracing – Tracking requests across multiple services in a distributed system.
 
