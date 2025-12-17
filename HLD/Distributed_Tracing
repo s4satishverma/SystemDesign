@@ -1,0 +1,92 @@
+In a monolithic system, tracking a request is simple — you have one log file and one flow.
+But in microservices, a single user request might touch 20+ services — and debugging what happened where becomes a nightmare.
+Distributed Tracing helps you follow that request as it hops across services, like a detective tracking its full journey.
+It answers:
+	• Where did the request start?
+	• Which services did it pass through?
+	• Where did latency or error occur?
+
+Think about ordering pizza online:
+	1. You place an order (frontend app).
+	2. The request goes to:
+		○ Payment Service
+		○ Kitchen Service
+		○ Delivery Service
+	3. You can track every stage: “Order confirmed → Baking → Out for delivery → Delivered.”
+If something goes wrong (e.g., “stuck in kitchen”), you can pinpoint exactly which step failed.
+That’s exactly what Distributed Tracing does for microservices.
+
+Why It’s Needed (The Problem)
+In a microservices architecture:
+	• Each service logs independently.
+	• Logs are stored in different containers/pods.
+	• A single request might go through:
+
+API Gateway → Auth Service → User Service → Payment → Notification
+
+If a user says “Payment failed,” without tracing you’ll spend hours stitching together logs manually.
+Distributed tracing solves this by assigning a unique trace ID to every request — and that ID follows it end-to-end.
+
+How Distributed Tracing Works (Step-by-Step)
+Let’s break down a real flow 
+Step 1: Generate a Trace ID
+When a user sends a request (say POST /checkout), the API Gateway creates a unique Trace ID — like TRACE12345.
+
+Step 2: Propagate the ID
+That trace ID is added to HTTP headers (like X-B3-TraceId, X-B3-SpanId, or traceparent if using OpenTelemetry).
+Each service that handles the request:
+	• Reads the Trace ID
+	• Adds its own Span (representing that service’s operation)
+	• Passes the same Trace ID downstream
+
+Step 3: Collect Traces
+Each span (service log) is sent asynchronously to a Tracing System (like Jaeger, Zipkin, or AWS X-Ray).
+
+Step 4: Visualize the Request Path
+The tracing system visualizes it like a timeline waterfall chart:
+
+User Request (TRACE12345)
+├── API Gateway (10ms)
+├── Auth Service (40ms)
+│    └── DB Query (20ms)
+├── Payment Service (250ms) ⚠️
+└── Notification Service (50ms)
+
+You can instantly see that Payment Service caused the slowdown.
+
+Let’s take Netflix Checkout Flow (simplified):
+
+1. User clicks "Pay Now"
+2. API Gateway creates Trace ID
+3. Auth → Payment → Email → Logging
+
+Each microservice logs:
+{
+  "traceId": "abc123",
+  "spanId": "payment-service-1",
+  "service": "payment",
+  "latency": 235
+}
+In UI, engineers see a single trace view showing latency breakdown by service.
+That’s how Netflix or Uber quickly debug slowdowns in production — without sifting through 50 containers’ logs.
+
+Core Components
+Component	Purpose
+Trace ID	Unique identifier for full request
+Span	A single operation (e.g., DB query, API call)
+Context Propagation	Passing the trace info through headers
+Tracer Agent	Collects trace data locally
+Collector / Storage	Aggregates all traces
+UI (e.g., Jaeger/Zipkin)	Visualizes end-to-end flow
+
+Frontend
+  ↓
+API Gateway → [Trace ID generated]
+  ↓
+User Service → Auth Service → Payment Service → Notification
+  ↓
+Jaeger/Zipkin Collector → Storage → Dashboard (Visualization)
+
+Each arrow carries the same Trace ID
+Each service logs its span
+Combined trace gives you the full story

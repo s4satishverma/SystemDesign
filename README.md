@@ -26,11 +26,11 @@ Consensus Algorithms – Mechanisms like Raft, Paxos to achieve agreement among 
 
 Gossip Protocol – Decentralized communication for spreading information across nodes......Done
 
-Service Discovery – Automatically locating services in dynamic environments.
+Service Discovery – Automatically locating services in dynamic environments........Done
 
-API Design – Structuring APIs for usability, maintainability, and scalability.
+API Design – Structuring APIs for usability, maintainability, and scalability......Done
 
-Disaster Recovery – Strategies to restore services after catastrophic failures.
+Disaster Recovery – Strategies to restore services after catastrophic failures.......Done
 
 Distributed Tracing – Tracking requests across multiple services in a distributed system.
 
