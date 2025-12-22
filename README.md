@@ -36,8 +36,6 @@ Distributed Tracing – Tracking requests across multiple services in a distribu
 
 
 2. Building Blocks
-   
-APIs – Interface for communication between services.
 
 Content Delivery Network (CDN) – Distributes content closer to users for faster access.
 
