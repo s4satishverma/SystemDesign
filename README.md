@@ -32,14 +32,12 @@ API Design – Structuring APIs for usability, maintainability, and scalability.
 
 Disaster Recovery – Strategies to restore services after catastrophic failures.......Done
 
-Distributed Tracing – Tracking requests across multiple services in a distributed system.
+Distributed Tracing – Tracking requests across multiple services in a distributed system.....Done
 
 
 2. Building Blocks
-   
-APIs – Interface for communication between services.
 
-Content Delivery Network (CDN) – Distributes content closer to users for faster access.
+Content Delivery Network (CDN) – Distributes content closer to users for faster access.....Done
 
 Proxy vs Reverse Proxy – Forwarding client requests vs managing requests to servers.
 

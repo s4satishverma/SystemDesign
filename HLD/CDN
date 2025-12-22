@@ -1,0 +1,48 @@
+
+What is a Content Delivery Network (CDN)?
+
+imple Definition
+A CDN (Content Delivery Network) is a global network of servers (called edge servers) that store and deliver content closer to users, so websites and APIs load faster and more reliably.
+Instead of every user hitting one central server, users are served from the nearest location.
+
+Problem Without CDN (Explain This First)
+Imagine:
+Your Spring Boot app is hosted in Toronto
+A user opens your site from India
+
+Without CDN:
+Request travels India → Canada → India
+
+High latency (slow response)
+Server load increases
+Poor user experience
+
+Solution With CDN
+✔ With CDN:
+Static content (images, JS, CSS, PDFs) is cached at edge locations
+
+User is served from nearest edge
+Faster response
+Origin server load is reduced
+
+What Does CDN Actually Cache?
+Content Type	Cached by CDN?
+Images (PNG, JPG)	✅ Yes
+CSS / JS files	✅ Yes
+Videos	✅ Yes
+PDFs	✅ Yes
+API Responses-	⚠️ Sometimes (with headers)
+Personalized data-	❌ Usually No
+
+CDN Architecture
+Key Components:-
+Client (Browser / Mobile App)
+CDN Edge Server (closest to user)
+Origin Server (your Spring Boot app)
+Cache Rules (TTL, headers)
+
+Request Flow (Very Important for Interview)
+User → CDN Edge
+       ├─ Cache HIT  → Response from Edge
+       └─ Cache MISS → Request to Origin → Cache → Response
+
