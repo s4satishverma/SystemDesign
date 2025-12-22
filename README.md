@@ -37,7 +37,7 @@ Distributed Tracing – Tracking requests across multiple services in a distribu
 
 2. Building Blocks
 
-Content Delivery Network (CDN) – Distributes content closer to users for faster access.
+Content Delivery Network (CDN) – Distributes content closer to users for faster access.....Done
 
 Proxy vs Reverse Proxy – Forwarding client requests vs managing requests to servers.
 
