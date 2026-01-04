@@ -1,1 +1,105 @@
+1. What is DNS?
+DNS (Domain Name System) converts domain names into IP addresses.
+-> Humans remember names: api.myapp.com
+ -> Machines understand IPs: 203.0.113.10
+DNS is the translator between humans and machines.
+
+2. DNS Resolution Flow (Step by Step)
+What happens when user hits api.myapp.com?
+	1. Browser / App asks a DNS Resolver
+	2. Resolver checks local cache
+	3. If not found → goes to:
+		○ Root DNS Server → “Who manages .com?”
+		○ TLD Server (.com) → “Who manages myapp.com?”
+		○ Authoritative DNS → “Here is the IP”
+	4. IP returned → browser connects to server
+ System design point:
+	DNS resolution usually happens in milliseconds due to caching.
+
+ 3. Important DNS Records (Interview MUST-KNOW)
+A Record
+Domain → IPv4
+api.myapp.com → 203.0.113.10
+
+AAAA Record
+Domain → IPv6
+
+CNAME
+Alias to another domain
+api.myapp.com → myapp-lb.aws.com
+Used heavily with Load Balancers & CDNs
+
+NS
+Which DNS servers control the domain
+
+TXT
+Verification, security (SPF, DKIM)
+
+4. TTL – The Most Important DNS Setting
+TTL = Time To Live (cache duration)
+TTL	Pros	Cons
+Low (30–60s)	Fast failover	More DNS traffic
+High (1h–24h)	Stable, cheap	Slow changes
+
+System design rule:
+	Lower TTL during migration, higher TTL during normal operations.
+
+ 5. DNS as Load Balancer (Global Traffic Routing)
+a) Round Robin DNS
+Returns multiple IPs
+❌ No real-time load awareness
+❌ Caching causes uneven traffic
+
+b) Geo / Latency-Based DNS
+User routed to nearest region
+✔️ Lower latency
+❌ Geo detection not 100% accurate
+
+c) Weighted DNS
+90% → old system
+10% → new system (canary release)
+Weights are approximate, not exact.
+
+6. DNS + CDN (Very Important in Real Systems)
+Typical flow:
+www.myapp.com → CDN → Edge Server → Origin Server
+
+DNS routes user to nearest CDN edge.
+:- Benefits:
+	• Faster response
+	• Less load on backend
+	• Global scalability
+
+7. DNS in Microservices & Kubernetes
+Example: payment-service.default.svc.cluster.local
+
+Why DNS matters here:
+	• Pods change IPs frequently
+	• DNS gives stable service names
+	• Enables service discovery
+Java corner case:
+JVM caches DNS → may delay failover if TTL is ignored.
+
+8. DNS Security & Failure Scenarios
+What can go wrong?
+	• DNS outage → entire site unreachable
+	• Wrong TTL → traffic stuck on old servers
+	• DNS cache poisoning
+Protection:
+	• Multiple name servers
+	• Strong registrar security
+	• DDoS-protected DNS providers
+
+Real-World System Design Example
+Global E-commerce App
+www.shop.com  → CDN
+api.shop.com  → Global Load Balancer
+DNS routing:
+- Canada → us-east
+- India → ap-south
+Failover:
+- ap-south down → us-east
+TTL:
+- Normal: 300s
+- Migration: 60s
 
