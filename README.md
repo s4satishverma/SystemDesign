@@ -41,7 +41,7 @@ Content Delivery Network (CDN) – Distributes content closer to users for faste
 
 Proxy vs Reverse Proxy – Forwarding client requests vs managing requests to servers........Done
 
-Domain Name System (DNS) – Resolves domain names to IP addresses.
+Domain Name System (DNS) – Resolves domain names to IP addresses.......Done
 
 Caching – Temporary data storage for faster retrieval.
 
