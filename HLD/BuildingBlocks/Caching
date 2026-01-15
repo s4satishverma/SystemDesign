@@ -1,1 +1,218 @@
+1. Caching – Temporary Data Storage for Faster Retrieval
+
+What is Caching?
+Caching is a technique where frequently accessed or expensive-to-compute data is stored temporarily in a fast storage layer (cache) so that future requests can be served faster without repeatedly hitting the primary data source (database, API, filesystem).
+Why Caching is Important
+	• Performance improvement – Reduces response time from milliseconds/seconds to microseconds
+	• Reduced database load – Fewer DB queries
+	• Scalability – Helps systems handle higher traffic
+	• Cost optimization – Less compute and I/O usage
+Typical Cache Flow
+	1. Client sends request
+	2. Application checks cache
+	3. If data exists → return from cache (cache hit)
+	4. If not → fetch from DB, store in cache, return (cache miss)
+
+Client → Application → Cache → Database
+                  ↳ (if miss) ↳ store result
+
+2. Caching Strategies
+Caching strategies define how data is read from and written to the cache.
+
+2.1 Write-Through Cache
+Definition
+In write-through caching, data is written to both cache and database synchronously.
+
+Flow
+Write Request
+ → Cache
+ → Database
+Characteristics
+	• Cache is always consistent with DB
+	• Slower writes (two operations)
+	• Simpler recovery
+
+Pros
+✔ Strong consistency
+✔ No stale data
+✔ Easy to implement
+
+Cons
+✖ Higher write latency
+✖ Cache write even if data is rarely read
+Best Use Case
+	• Financial data
+	• User profiles
+	• Configuration data
+
+2.2 Write-Back (Write-Behind) Cache
+Definition
+In write-back caching, data is written to the cache first, and the database update happens asynchronously later.
+
+Flow
+Write Request
+ → Cache
+ → (Async) Database
+
+Characteristics
+	• Faster writes
+	• Risk of data loss if cache crashes
+
+Pros
+✔ Very fast write operations
+✔ Reduced DB load
+
+Cons
+✖ Risk of data loss
+✖ Complex failure handling
+Best Use Case
+	• High-write systems
+	• Analytics
+	• Event counters
+
+2.3 Read-Through Cache
+Definition
+In read-through caching, the application always reads from the cache.
+If data is missing, the cache itself loads data from DB.
+
+Flow
+Read Request
+ → Cache
+   → (if miss) Load from DB
+
+Characteristics
+	• Application logic remains simple
+	• Cache acts as data loader
+
+Pros
+✔ Cleaner application code
+✔ Automatic cache population
+
+Cons
+✖ Cache layer becomes more complex
+Best Use Case
+	• Centralized caching logic
+	• Shared cache libraries
+
+2.4 Cache-Aside (Lazy Loading)
+Definition
+In cache-aside, the application is fully responsible for reading and writing cache.
+
+Flow
+Read:
+ → Cache
+ → (miss) DB → Cache → Response
+
+Write:
+ → DB
+ → Cache (update or evict)
+
+Characteristics
+	• Most commonly used strategy
+	• Explicit control
+
+Pros
+✔ Flexible
+✔ Easy to debug
+✔ Works well with Spring Boot annotations
+
+Cons
+✖ Risk of stale data
+✖ Requires careful eviction
+Best Use Case
+	• REST APIs
+	• Microservices
+	• Spring Boot applications
+
+3. Distributed Caching
+What is Distributed Caching?
+Distributed caching is a caching approach where multiple application instances share the same cache, typically running on a separate cluster.
+Instead of:
+App Instance → Local Cache
+We have:
+Multiple Apps → Shared Cache Cluster
+
+Why Distributed Cache?
+	• Microservices architecture
+	• Horizontal scaling
+	• Stateless applications
+	• Consistent cached data across nodes
+
+Common Distributed Cache Technologies
+	• Redis
+	• Memcached
+	• Hazelcast
+	• AWS ElastiCache
+
+Distributed Cache Architecture
+Client
+ ↓
+Load Balancer
+ ↓
+App Instance 1 ─┐
+App Instance 2 ─┼──► Distributed Cache (Redis)
+App Instance 3 ─┘
+                   ↓
+                Database
+
+
+Advantages
+✔ Cache consistency across nodes
+✔ High availability
+✔ Better scalability
+Challenges
+✖ Network latency
+✖ Cache eviction coordination
+✖ Serialization overhead
+
+4. Caching in Spring Boot (Conceptual Mapping)
+Spring Concept	Maps To
+@EnableCaching	Enable cache abstraction
+@Cacheable	Cache-aside (read)
+@CachePut	Write/update cache
+@CacheEvict	Cache invalidation
+Redis	- Distributed cache provider
+
+5. Summary Table
+Concept	Purpose
+Caching	Improve speed and reduce DB load
+Write-Through	Strong consistency
+Write-Back	High performance writes
+Read-Through	Cache handles DB access
+Cache-Aside	Application controls caching
+Distributed Cache	Shared cache for scalability
+
+6. Interview-Ready One-Liner 
+	Caching improves performance by storing frequently accessed data in fast storage.
+	Cache-aside is the most common strategy in Spring Boot.
+	Distributed caching enables scalable, stateless microservices by sharing cache across nodes.
+	
+	1️⃣ Cache-Aside (BEST DEMO)
+	GET http://localhost:8080/demo/aside/1
+	First call
+		•  ~2 seconds delay
+		• Console: Cache-Aside: DB hit
+	Second call
+		•  Instant
+		•  No DB log
+	 Perfect visual proof of Cache-Aside
+	
+	2️⃣ Write-Through
+	POST http://localhost:8080/demo/write-through/1
+	Console:
+	
+	Write-Through: Writing to DB and Cache
+	Explain:
+		“Data is written to DB and cache at the same time.”
+	
+	3️⃣ Write-Back (Conceptual)
+	POST http://localhost:8080/demo/write-back/1
+	Console:
+	Write-Back: Writing to Cache first, DB async
+	Explain:
+		“Write-back improves performance but risks data loss if cache fails.”
+	
+	
+	
+	
 
