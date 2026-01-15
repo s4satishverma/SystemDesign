@@ -43,11 +43,11 @@ Proxy vs Reverse Proxy – Forwarding client requests vs managing requests to se
 
 Domain Name System (DNS) – Resolves domain names to IP addresses.......Done
 
-Caching – Temporary data storage for faster retrieval.
+Caching – Temporary data storage for faster retrieval........Done
 
-Caching Strategies – Write-through, Write-back, Read-through, Cache-aside.
+Caching Strategies – Write-through, Write-back, Read-through, Cache-aside.........Done
 
-Distributed Caching – Shared cache accessible by multiple nodes.
+Distributed Caching – Shared cache accessible by multiple nodes.........Done
 
 API Gateway – Central entry point for managing APIs, routing, and authentication.
 
