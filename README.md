@@ -49,7 +49,7 @@ Caching Strategies – Write-through, Write-back, Read-through, Cache-aside.....
 
 Distributed Caching – Shared cache accessible by multiple nodes.........Done
 
-API Gateway – Central entry point for managing APIs, routing, and authentication.
+API Gateway – Central entry point for managing APIs, routing, and authentication......Done
 
 Load Balancing – Distributing traffic across multiple servers.
 
