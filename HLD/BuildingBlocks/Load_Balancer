@@ -1,0 +1,68 @@
+What is Load Balancing?
+Load balancing means spreading incoming user requests across multiple servers so that no single server gets overloaded.
+
+Simple idea:
+Instead of sending all traffic to one server, we distribute it smartly across many.
+
+Real-Life Analogy
+Imagine a busy fast-food restaurant:
+	• 1 cashier → long lines, slow service  
+	• 5 cashiers → faster service, happy customers 
+
+Load balancer = manager assigning customers to different cashiers
+
+How It Works
+	1. User sends a request (opens your app/website) 
+	2. Request first goes to a Load Balancer 
+	3. Load balancer decides which server should handle it 
+	4. Request is forwarded to that server 
+	5. Server sends response back to user 
+
+Why Load Balancing is Important
+ 1. High Availability
+  If one server fails → traffic shifts to others
+  Your app stays online
+ 
+2. Scalability
+You can add more servers as traffic grows
+Supports millions of users
+
+3. Better Performance
+No single server is overloaded
+aster response times
+
+4. Fault Tolerance
+Unhealthy servers are automatically avoided
+
+Load Balancing Algorithms
+
+Round Robin
+Requests go one by one to each server, Simple but not always efficient
+
+Least Connections
+Send traffic to server with least active users, More balanced and smart
+
+IP Hash
+Same user → same server, Useful for login/session-based apps
+
+Weighted
+Powerful servers get more traffic, Optimized performance
+
+Types of Load Balancers
+ Layer 4 (Transport Layer)
+	• Works on IP + Port 
+	• Fast but basic 
+
+Layer 7 (Application Layer)
+	• Works on HTTP/HTTPS 
+	• Can route based on: 
+		○ URL 
+		○ Headers 
+		○ Cookies 
+Example: /api → backend servers, /images → CDN
+
+Real-World Example
+Think about apps like Netflix or YouTube:
+	• Millions of users watching videos 
+	• Load balancer distributes traffic across thousands of servers
+ That’s why streaming feels smooth 
