@@ -51,7 +51,7 @@ Distributed Caching – Shared cache accessible by multiple nodes.........Done
 
 API Gateway – Central entry point for managing APIs, routing, and authentication......Done
 
-Load Balancing – Distributing traffic across multiple servers.
+Load Balancing – Distributing traffic across multiple servers.........Done
 
 Database Types – SQL (relational) vs NoSQL (non-relational).
 
