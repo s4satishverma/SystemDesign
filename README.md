@@ -53,9 +53,9 @@ API Gateway – Central entry point for managing APIs, routing, and authenticati
 
 Load Balancing – Distributing traffic across multiple servers.........Done
 
-Database Types – SQL (relational) vs NoSQL (non-relational).
+Database Types – SQL (relational) vs NoSQL (non-relational).......Done
 
-Database Indexes – Structures to speed up data retrieval.
+Database Indexes – Structures to speed up data retrieval.........Done
 
 Consistency Patterns – Strong, Eventual, Causal consistency.
 
