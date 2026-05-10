@@ -1,0 +1,67 @@
+What is Consistency?
+When you have multiple servers/databases, consistency defines:
+“Will all users see the same data at the same time?”
+
+1. Strong Consistency
+Idea:
+After a write → every read immediately sees latest data
+Example:
+	• You update your bank balance → refresh → always latest 
+	• No stale data ever 
+Real-world:
+	• Banking systems 
+	• Payment systems 
+	• Inventory (last item left) 
+How it works:
+	• Writes are synchronous 
+	• All replicas updated before response 
+Trade-off:
+	• Slower 
+	• Less scalable 
+
+ “Strong consistency means no confusion—everyone sees the same truth instantly.”
+
+2. Eventual Consistency
+Idea:
+After a write → system eventually becomes consistent
+Example:
+	• Update profile picture → some users still see old one for few seconds 
+	• DNS updates take time 
+Real-world:
+	• Social media feeds 
+	• DNS systems 
+	• Caching layers 
+How it works:
+	• Writes are asynchronous 
+	• Replicas updated gradually 
+Trade-off:
+	• Fast 
+	• Highly scalable 
+	•  Temporary stale data 
+
+ “Eventual consistency means it may be wrong now, but it will be right soon.”
+
+ 3. Causal Consistency
+Idea:
+Related operations stay in order, unrelated can be out of order
+Example:
+	• You post → then comment
+Everyone must see post before comment
+But other users’ posts can appear in any order 
+Real-world:
+	• Social media timelines 
+	• Chat applications 
+How it works:
+	• Maintains “happens-before” relationship 
+	• Tracks dependencies 
+Trade-off:
+	• Balanced approach 
+	• More complex than eventual 
+One-liner:
+ “Causal consistency keeps cause and effect in order.”
+
+Quick Comparison
+Type	Speed	Accuracy	Use Case
+Strong	Slow	⭐⭐⭐⭐⭐	Banking
+Eventual	Fast	⭐⭐	Social media
+Causal	Medium	⭐⭐⭐⭐	Chat / feeds
