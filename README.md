@@ -57,7 +57,7 @@ Database Types – SQL (relational) vs NoSQL (non-relational).......Done
 
 Database Indexes – Structures to speed up data retrieval.........Done
 
-Consistency Patterns – Strong, Eventual, Causal consistency.
+Consistency Patterns – Strong, Eventual, Causal consistency..........Done
 
 Heartbeats – Regular signals to check component health.
 
