@@ -59,7 +59,7 @@ Database Indexes – Structures to speed up data retrieval.........Done
 
 Consistency Patterns – Strong, Eventual, Causal consistency..........Done
 
-Heartbeats – Regular signals to check component health.
+Heartbeats – Regular signals to check component health........Done
 
 Circuit Breaker – Prevents cascading failures by stopping repeated failed requests.
 
