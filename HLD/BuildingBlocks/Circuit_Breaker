@@ -1,0 +1,310 @@
+What is a Circuit Breaker?
+A Circuit Breaker is a design pattern used in distributed systems and microservices to prevent cascading failures.
+Imagine one service is failing continuously.
+Instead of sending more and more requests to that failing service, the circuit breaker temporarily stops the requests and gives the failing system time to recover.
+
+It works very similar to an electrical circuit breaker in a house.
+If too much current flows:
+	• the breaker trips, 
+	• electricity stops, 
+	• damage is prevented. 
+
+In software:
+	• too many failed requests happen, 
+	• the circuit trips, 
+	• requests are blocked, 
+	• system damage is prevented. 
+
+Real-World Example
+Think about:
+	• Netflix 
+	• Amazon 
+	• Banking apps 
+	• Food delivery systems 
+Suppose:
+	• Your payment service is down. 
+	• Thousands of users are trying to pay. 
+	• Every request keeps retrying. 
+	• Database connections get exhausted. 
+	• CPU usage spikes. 
+	• Other services also become slow. 
+This creates a cascading failure.
+Circuit breaker prevents this disaster.
+
+Why Do We Need Circuit Breakers?
+Without a circuit breaker:
+	1. Requests keep hitting failed service 
+	2. Threads become blocked 
+	3. Memory increases 
+	4. Timeouts increase 
+	5. Entire application becomes slow 
+	6. Other services start failing too 
+
+This chain reaction is called: Cascading Failure
+Circuit breaker helps isolate the failure.
+
+Main Goal
+The main goal is:
+	“Fail fast instead of failing slowly.”
+Instead of waiting 30 seconds for timeout:
+	• reject immediately, 
+	• return fallback response, 
+	• protect the system. 
+
+How Circuit Breaker Works
+A circuit breaker has 3 states:
+
+1. Closed State (Normal State)
+In this state:
+	• Everything works normally. 
+	• Requests go to the target service. 
+Example:
+	• Order Service calls Payment Service 
+	• Payment Service responds successfully 
+Flow:
+
+User → Order Service → Payment Service → Success
+The circuit remains CLOSED.
+
+2. Open State (Failure State)
+If failures cross a threshold:
+	• circuit breaker OPENS. 
+	• Requests are blocked immediately. 
+Example:
+	• 10 requests fail continuously 
+	• Failure threshold exceeded 
+	• Circuit opens 
+Now:
+
+User → Order Service → Circuit Breaker → Request Blocked
+No request reaches Payment Service.
+This protects:
+	• threads 
+	• CPU 
+	• memory 
+	• network 
+	• databases 
+
+3. Half-Open State (Testing State)
+After some wait time:
+	• circuit breaker allows a few test requests. 
+If successful:
+	• circuit closes again. 
+If failed:
+	• circuit opens again. 
+This is like checking:
+	“Is the service healthy now?”
+
+Complete Lifecycle
+
+Closed → Failures Increase → Open
+Open → Wait Time Over → Half Open
+Half Open → Success → Closed
+Half Open → Failure → Open
+
+Example Scenario
+Food Delivery App
+Services:
+	• Restaurant Service 
+	• Payment Service 
+	• Notification Service 
+	• Delivery Service 
+Suppose Payment Service crashes.
+Without circuit breaker:
+	• millions of requests keep coming 
+	• payment service overloaded 
+	• threads blocked 
+	• application slow 
+	• entire app unstable 
+With circuit breaker:
+	• after threshold failures, 
+	• requests stop immediately, 
+	• fallback message shown: 
+
+“Payment service temporarily unavailable.”
+System survives.
+
+Important Configuration Parameters
+1. Failure Threshold
+Number of failures before opening circuit.
+Example:
+
+If 50% requests fail → Open Circuit
+
+2. Timeout Duration
+How long to wait before trying again.
+Example:
+
+Wait 30 seconds before Half-Open
+
+3. Sliding Window
+Checks failures over a recent time period.
+Example:
+
+Last 20 requests
+
+4. Slow Call Threshold
+Even slow responses can trigger breaker.
+Example:
+
+If response > 5 seconds
+
+Advantages of Circuit Breaker
+1. Prevents Cascading Failures
+Main benefit.
+
+2. Improves System Stability
+Healthy services continue working.
+
+3. Faster Failure Response
+No long waiting time.
+
+4. Resource Protection
+Protects:
+	• CPU 
+	• Memory 
+	• Thread pools 
+	• DB connections 
+
+5. Better User Experience
+Users get fallback responses instead of app hanging.
+
+Disadvantages
+1. Additional Complexity
+More configurations and monitoring needed.
+
+2. Wrong Thresholds Can Cause Problems
+Too sensitive:
+	• opens unnecessarily 
+Too relaxed:
+	• failures continue too long 
+
+Circuit Breaker vs Retry
+Feature	Retry	Circuit Breaker
+Purpose	Retry failed request	Stop failed requests
+Goal	Recover temporary failure	Prevent overload
+Behavior	Sends more requests	Blocks requests
+Risk	Can increase load	Reduces load
+Usually both are used together carefully.
+
+Circuit Breaker + Retry Combination
+Best practice:
+	1. Retry few times 
+	2. If still failing 
+	3. Circuit breaker opens 
+Example:
+
+Retry 3 times
+Still failing?
+Open circuit
+
+Popular Libraries
+Java Spring Boot
+Resilience4j
+Most popular modern library.
+Features:
+	• Circuit Breaker 
+	• Retry 
+	• Rate Limiter 
+	• Bulkhead 
+
+Hystrix
+Older Netflix library.
+Now in maintenance mode.
+
+Spring Boot Example
+
+@CircuitBreaker(name = "paymentService")
+public String processPayment() {
+    return paymentClient.pay();
+}
+If service fails repeatedly:
+	• circuit opens automatically. 
+
+Fallback Method Example
+
+@CircuitBreaker(
+    name = "paymentService",
+    fallbackMethod = "fallbackResponse"
+)
+public String processPayment() {
+    return paymentClient.pay();
+}
+
+public String fallbackResponse(Exception ex) {
+    return "Payment service unavailable";
+}
+
+Circuit Breaker in Kubernetes & Cloud
+Cloud platforms also use circuit breaker concepts:
+	• Service Mesh 
+	• API Gateway 
+
+Restaurant Analogy
+Suppose kitchen is overloaded.
+Manager stops accepting new orders temporarily.
+Why?
+	• Prevent complete collapse 
+	• Allow recovery 
+	• Protect staff 
+This is exactly what a circuit breaker does.
+
+Interview Questions
+Q1. Why is circuit breaker needed?
+To prevent cascading failures and improve resilience.
+
+Q2. What are the states of circuit breaker?
+	• Closed 
+	• Open 
+	• Half-Open 
+
+Q3. Difference between Retry and Circuit Breaker?
+Retry retries requests.
+Circuit breaker blocks requests.
+
+Q4. What is fallback?
+Alternative response when service fails.
+Example:
+
+“Service temporarily unavailable.”
+
+Best Practices
+1. Use with Retry Carefully
+Too many retries can overload system.
+
+2. Configure Proper Thresholds
+Monitor production traffic.
+
+3. Always Add Monitoring
+Use:
+	• Grafana 
+	• Kibana 
+
+4. Add Meaningful Fallbacks
+Never show technical errors to users.
+
+Simple Architecture Flow
+
+Client
+   ↓
+API Gateway
+   ↓
+Order Service
+   ↓
+Circuit Breaker
+   ↓
+Payment Service
+If Payment Service fails:
+
+Circuit Opens
+↓
+Fallback Response Returned
+
+Final Summary
+Circuit Breaker is one of the most important resiliency patterns in distributed systems.
+It:
+	• prevents cascading failures, 
+	• protects resources, 
+	• improves stability, 
+	• helps systems recover gracefully. 
+Modern microservices heavily rely on circuit breakers for high availability and fault tolerance.
