@@ -61,7 +61,7 @@ Consistency Patterns – Strong, Eventual, Causal consistency..........Done
 
 Heartbeats – Regular signals to check component health........Done
 
-Circuit Breaker – Prevents cascading failures by stopping repeated failed requests.
+Circuit Breaker – Prevents cascading failures by stopping repeated failed requests...........Done
 
 Idempotency – Same request executed multiple times gives the same result.
 
