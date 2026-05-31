@@ -1,0 +1,324 @@
+Idempotency 
+
+Idempotency means:
+	Executing the same request multiple times produces the same final result as executing it once.
+In simple language:
+Imagine you press the "Pay Now" button and due to a slow internet connection you press it 5 times.
+
+Without idempotency:
+	• Money may be deducted 5 times. 
+
+With idempotency:
+	• Money is deducted only once. 
+	• Remaining 4 requests are ignored. 
+The final state remains the same.
+
+A request is a message sent by a client to a server.
+Examples:
+	• Place Order 
+	• Transfer Money 
+	• Book Ticket 
+	• Create User 
+
+Example:
+POST /payment
+Amount = $100
+This is a request.
+
+Execute
+Execute means perform the operation.
+
+Example:
+Transfer $100
+Server processes the operation.
+This is execution.
+
+Result
+Result means outcome after execution.
+
+Example:
+Before:
+Balance = $1000
+After transferring $100:
+Balance = $900
+This is the result.
+
+
+Real Life Example
+Suppose you order pizza online.
+
+You click:
+Place Order
+Internet becomes slow. You don't know whether order was placed. You click again.
+And again.
+And again.
+
+Server receives:
+Request 1
+Request 2
+Request 3
+Request 4
+
+Question:
+Should four pizzas be delivered?
+Obviously not.
+Customer wants:
+
+1 Pizza not 4 Pizzas
+This is where idempotency helps.
+
+Banking Example (Most Important Interview Example)
+Suppose account balance: $1000
+Request: Transfer $100
+Network timeout occurs.
+Client retries.
+Server receives same request again.
+Without Idempotency:
+Attempt 1 → Balance = $900
+Attempt 2 → Balance = $800
+Attempt 3 → Balance = $700
+Money deducted multiple times. Huge business issue.
+
+With Idempotency:
+Attempt 1 → Processed
+Attempt 2 → Ignored
+Attempt 3 → Ignored
+
+Final Balance:$900 Correct behavior.
+
+Why Do Duplicate Requests Happen?
+Interviewers love this question.
+
+Duplicate requests happen because:
+
+1. Network Timeout
+Client doesn't receive response.
+
+Client -----> Server
+Server processed request
+
+Response lost
+Client thinks request failed.
+Retries.
+
+2. User Clicking Multiple Times
+Pay Now
+Pay Now
+Pay Now
+Multiple requests generated.
+
+3. Retry Mechanism
+Modern systems automatically retry failed calls.
+Example:
+Feign Client
+RestTemplate
+Kafka Consumer
+RabbitMQ Consumer
+These frameworks retry requests.
+
+
+4. Server Crash
+Request processed.
+Server crashes before sending response.
+Client retries.
+Duplicate request arrives.
+
+How Idempotency Works
+The most common approach is:
+
+Idempotency Key
+An Idempotency Key is a unique identifier attached to every request.
+Example:
+Payment Request
+Amount = $100
+Idempotency-Key =PAY-12345
+
+First Request PAY-12345
+Server checks database.
+
+Key Exists?
+No
+Process payment.
+Store key.
+
+PAY-12345
+Return success.
+
+
+Second Request
+Same request arrives. PAY-12345
+Server checks database.
+
+Key Exists?
+Yes
+Do not process again.
+Return old response.
+
+
+Result: Only one payment.
+
+
+Example Using Spring Boot
+Client Request
+
+POST /payments
+
+Headers:
+Idempotency-Key: PAY-12345
+
+Server Flow
+Receive Request
+      |
+Check Key
+      |
+   Exists?
+  /           \
+Yes          No
+  |                  |
+Return        Process
+Old Resp     Payment
+  |
+Save Key
+
+
+Database Table
+
+CREATE TABLE payment_request
+(
+id NUMBER,
+idempotency_key VARCHAR2(100),
+status VARCHAR2(20)
+);
+
+
+Example Data
+ID
+IDEMPOTENCY_KEY
+STATUS
+1
+PAY-12345
+SUCCESS
+When same request comes:
+PAY-12345
+System sees record already exists.
+No new payment.
+
+
+REST API and Idempotency
+Interviewers often ask:
+"Which HTTP methods are idempotent?"
+
+GET
+GET /users/100
+Read operation.
+Run 1000 times.
+Same data returned.
+Idempotent
+
+
+PUT
+PUT /users/100
+
+Name = Satish
+Run 100 times.
+Final value remains:
+Name = Satish
+Idempotent
+
+
+DELETE
+DELETE /users/100
+First call:
+User deleted
+Second call:
+Already deleted
+Final state remains deleted.
+dempotent
+
+
+POST
+POST /users
+Every call creates new record.
+User 1
+User 2
+User 3
+Not Idempotent by default
+
+However:
+POST + Idempotency Key can become idempotent.
+
+
+Interview Scenario
+Interviewer: Design a payment system like Stripe.
+Answer:
+Payments must be idempotent because network failures and retries can create duplicate transactions. Every payment request should contain an Idempotency Key. The server stores the key in a database or distributed cache. If the same key arrives again, the previously stored response is returned instead of processing the payment again." This answer immediately demonstrates distributed systems knowledge.
+
+
+Idempotency in Kafka
+Suppose a consumer reads:
+
+Order Created
+Consumer crashes.
+Kafka sends message again.
+Without idempotency:
+
+Inventory reduced twice.
+Bad.
+
+With idempotency: Store processed event id.
+
+EVENT-1001
+When same event arrives:
+
+Already processed
+Ignore.
+This is called: Exactly-Once Processing Strategy (business-level exactly once).
+
+
+Where Is Idempotency Used?
+Payment Systems
+	• Credit Card Payment 
+	• UPI Payment 
+	• Wallet Payment 
+	
+Order Systems
+	• Amazon Order Placement 
+	• Food Delivery Apps 
+	
+Messaging Systems
+	• Kafka 
+	• RabbitMQ 
+	
+Microservices
+	• Service-to-Service Communication 
+	
+Distributed Systems
+	• Retry Mechanisms 
+	• Event Processing 
+
+
+Common Interview Mistakes
+Mistake 1
+Thinking retries are enough.
+Retries solve availability.
+They do not solve duplicate processing.
+
+
+Mistake 2
+Using timestamp as idempotency key.
+Bad idea.
+Two requests can have different timestamps.
+
+
+Mistake 3
+Not storing response.
+Good systems store:
+
+Idempotency Key
+Response
+Status
+So duplicate requests get identical responses.
+
+
+One-Line Definition
+	Idempotency is a design principle where executing the same operation multiple times produces the same final state as executing it once, typically achieved using unique request identifiers called Idempotency Keys to prevent duplicate processing in distributed systems.
