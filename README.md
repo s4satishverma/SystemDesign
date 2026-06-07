@@ -63,9 +63,9 @@ Heartbeats – Regular signals to check component health........Done
 
 Circuit Breaker – Prevents cascading failures by stopping repeated failed requests...........Done
 
-Idempotency – Same request executed multiple times gives the same result.
+Idempotency – Same request executed multiple times gives the same result..........Done
 
-Database Scaling – Vertical (scale-up) vs Horizontal (scale-out).
+Database Scaling – Vertical (scale-up) vs Horizontal (scale-out)........Done
 
 Data Replication – Copying data across nodes for redundancy.
 
