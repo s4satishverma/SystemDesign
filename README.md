@@ -67,13 +67,13 @@ Idempotency – Same request executed multiple times gives the same result......
 
 Database Scaling – Vertical (scale-up) vs Horizontal (scale-out)........Done
 
-Data Replication – Copying data across nodes for redundancy.
+Data Replication – Copying data across nodes for redundancy...........Done
 
-Data Redundancy – Storing extra copies of data for fault tolerance.
+Data Redundancy – Storing extra copies of data for fault tolerance........Done
 
-Database Sharding – Splitting a database into smaller, faster parts.
+Database Sharding – Splitting a database into smaller, faster parts........Done
 
-Database Architectures – Master-Slave, Master-Master, Leader-Follower.
+Database Architectures – Master-Slave, Master-Master, Leader-Follower........Done
 
 Failover – Switching to a backup system when primary fails.
 
