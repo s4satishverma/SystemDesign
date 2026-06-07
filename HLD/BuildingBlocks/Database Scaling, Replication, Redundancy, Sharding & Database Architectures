@@ -1,0 +1,445 @@
+Database Scaling, Replication, Redundancy, Sharding & Database Architectures
+
+When you build a small application with 100 users, a single database server is usually enough.
+But when your application grows to:
+	• 1 million users 
+	• 100 million users 
+	• billions of requests 
+a single database becomes a bottleneck.
+A bottleneck is a component that limits the overall performance of a system.
+Think of a highway:
+
+8 lanes --> 1 lane bridge --> 8 lanes
+
+No matter how wide the highway is, traffic slows down at the bridge.
+In large-scale systems, databases often become that bridge.
+To solve this problem, companies like Amazon, Google, Netflix, Meta, and Uber use several techniques:
+	1. Database Scaling 
+	2. Data Replication 
+	3. Data Redundancy 
+	4. Database Sharding 
+	5. Advanced Database Architectures 
+Let's understand each one deeply.
+
+1. Database Scaling
+
+What is Scaling?
+Scaling means: Increasing system capacity to handle more users, more requests, and more data.
+
+Imagine your database can handle: 10,000 requests/second
+Now your application receives: 100,000 requests/second
+You must scale.
+
+There are two ways:
+Vertical Scaling (Scale Up)
+Horizontal Scaling (Scale Out)
+
+Vertical Scaling (Scale Up)
+Definition
+Vertical scaling means: Making the existing server more powerful.
+
+Example:
+Before:
+CPU: 4 cores
+RAM: 16 GB
+Storage: 500 GB
+
+After:
+CPU: 64 cores
+RAM: 512 GB
+Storage: 10 TB SSD
+Same machine.
+More power.
+
+Real Life Analogy
+Imagine a restaurant.
+Initially:
+
+1 chef
+Now customers increase.
+Instead of opening another restaurant, you hire:
+
+1 super chef
+who cooks faster.
+That's vertical scaling.
+
+Example
+Suppose MySQL runs on:
+16 GB RAM
+Queries become slow.
+
+Upgrade server:
+128 GB RAM
+Database performance improves.
+
+Advantages
+Simpler
+No architecture changes.
+Just upgrade hardware.
+Easy Management
+Only one database server.
+
+Disadvantages
+Expensive Powerful servers cost a lot.
+Hardware Limit
+Eventually:
+Cannot buy infinite RAM
+Cannot buy infinite CPU
+There is always a maximum machine size.
+Single Point of Failure
+If server crashes: Entire database down
+A Single Point of Failure (SPOF) means one component can bring down the whole system.
+
+Horizontal Scaling (Scale Out)
+Definition
+Horizontal scaling means: Adding more servers instead of making one server bigger.
+Example:
+Instead of: 1 database server
+Use: 10 database servers
+
+Real Life Analogy
+Restaurant example.
+Instead of hiring one super-chef:
+
+Open 10 kitchens
+Customers are distributed among them.
+That's horizontal scaling.
+
+Example
+Before: Database Server A
+After:
+Server A
+Server B
+Server C
+Server D
+Traffic is divided.
+
+Advantages
+Near Infinite Growth
+Need more capacity?
+Add more servers.
+
+Fault Tolerance
+If one server fails: Others continue working
+Fault Tolerance means System continues functioning even when some components fail.
+
+Better Availability
+Availability means: System remains accessible to users.
+Example 
+Amazon website remains online
+Netflix continues streaming
+even if some servers fail.
+
+Disadvantages
+Complex
+Now engineers must solve:
+Data synchronization
+Replication
+Sharding
+Consistency
+which we'll discuss next.
+
+2. Data Replication
+Definition
+Replication means: Creating copies of data across multiple servers.
+Example
+Primary database:
+User:
+ID = 1
+Name = John
+Replication creates copies:
+
+Server A
+Server B
+Server C
+All contain:
+ID = 1
+Name = John
+
+Why Replicate Data?
+Reliability
+If one server dies: Other copies still exist
+
+High Availability
+Users can still access data.
+
+Read Scalability
+Read requests can be distributed.
+
+Read Request
+A read means:
+SELECT * FROM users;
+You are retrieving data.
+
+Write Request
+A write means:
+INSERT
+UPDATE
+DELETE
+You are modifying data.
+
+Example
+Instagram user profile.
+Millions of users read profiles.
+Instead of one database:
+
+Primary Database
+Replica 1
+Replica 2
+Replica 3
+Replica 4
+Reads go to replicas.
+Writes go to primary.
+This reduces load dramatically.
+
+3. Data Redundancy
+Definition
+Data redundancy means: Storing extra copies of data to survive failures.
+Many beginners confuse redundancy and replication.
+
+Difference
+Replication
+Focus:
+Performance
+Availability
+
+Redundancy
+Focus:
+Backup
+Fault Tolerance
+Disaster Recovery
+
+Example
+You store family photos:
+Laptop
+External Hard Drive
+Google Drive
+Three copies.
+That's redundancy.
+
+Database Example
+Customer record exists:
+Server A
+Server B
+Server C
+If Server A explodes: Data survives because redundant copies exist.
+
+Why Big Companies Need Redundancy
+Imagine Amazon losing:
+Order history
+Payments
+Customer data
+for millions of users.
+Catastrophic.
+Therefore data exists in multiple locations.
+Sometimes multiple countries.
+
+Disaster Recovery
+Disaster Recovery means: Ability to recover after catastrophic failure.
+Examples:
+Data center fire
+Flood
+Earthquake
+Power outage
+Data redundancy helps recovery.
+
+4. Database Sharding
+One of the most important concepts in system design interviews.
+
+Definition
+Sharding: Splitting one large database into multiple smaller databases.
+Each piece is called a shard.
+
+Why Sharding?
+Imagine:
+1 Billion Users
+Single database becomes too large.
+Queries slow down.
+Storage becomes massive.
+
+Instead:
+Shard 1
+Shard 2
+Shard 3
+Shard 4
+Each shard stores part of the data.
+
+Example
+Users:
+User 1
+User 2
+...
+User 1 Billion
+Split by user ID.
+
+Shard 1
+1 - 250 Million
+
+Shard 2
+250M - 500M
+
+Shard 3
+500M - 750M
+
+Shard 4
+750M - 1B
+
+Now each database handles only part of the workload.
+Much faster.
+
+Real Example
+Imagine Instagram.
+
+Instead of: 1 giant database
+
+Use:
+Shard A -> US users
+Shard B -> Europe users
+Shard C -> Asia users
+Traffic becomes distributed.
+
+Technical Term: Partition Key
+A partition key determines: Which shard stores a piece of data.
+Example:
+User ID
+Country
+Region
+Customer ID
+
+Example:
+UserID % 4
+Result:
+0 -> Shard A
+1 -> Shard B
+2 -> Shard C
+3 -> Shard D
+This is called a Shard Key or Partition Key.
+
+Benefits of Sharding
+Faster Queries Less data per database.
+
+Better Scalability Add more shards.
+
+Lower Load Traffic distributed.
+
+Challenges
+Cross-Shard Queries Need data from multiple shards.
+Example:
+
+SELECT * FROM all_users
+
+Must query many shards means Complexibility
+
+Rebalancing
+Suppose:
+Shard A = 90% users
+Shard B = 10% users
+Need redistribution.
+This is called: Rebalancing
+
+5. Database Architectures
+Now let's discuss how databases are organized.
+
+Master-Slave Architecture
+(Modern term: Leader-Follower)
+
+Structure
+
+             Master
+                  |
+        ---------------
+     |           |          |
+ Slave1  Slave2  Slave3
+
+Master
+Handles:
+INSERT
+UPDATE
+DELETE
+All writes.
+
+Slaves
+Handle: SELECT
+Reads.
+
+Example
+Instagram Profile View
+Read profile
+Read profile
+Read profile
+Millions of reads.
+
+Profile Update
+Change bio
+Upload photo
+Writes.
+
+Writes: Master
+
+Reads: Slaves
+
+Advantage
+Massive read scalability.
+
+Problem
+Master failure.
+If master dies:
+
+No writes possible
+Until failover happens.
+
+Failover
+Failover means: Automatically switching to a backup server after failure.
+Example:
+Master crashes
+System promotes:
+
+Slave 1 -> New Master
+Users continue working.
+
+Master-Master Architecture Structure
+Master A <----> Master B
+Both can:
+Read
+Write
+
+Advantage
+No single write server.
+Higher availability.
+
+Problem
+Data Conflicts
+Example:
+Server A:
+Balance = 100
+
+Server B:
+Balance = 120
+
+Same record updated simultaneously.
+Which value wins?
+This is called a: Write Conflict
+Conflict resolution becomes difficult.
+
+Leader-Follower Architecture
+Modern name for Master-Slave.
+
+Structure:
+
+Leader
+   |
+Followers
+
+Leader: Writes
+Followers: Reads
+
+Why Modern Systems Prefer Leader-Follower?
+Simple.
+Reliable.
+Easy conflict management.
+Widely used by:
+	• MySQL 
+	• PostgreSQL 
+	• MongoDB 
+	• Kafka 
+	• Distributed databases
