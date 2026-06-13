@@ -1,0 +1,65 @@
+Failover
+	"Design a payment processing system that needs to be highly available."
+	"How would you design Netflix's video streaming infrastructure?"
+	"Design WhatsApp — 2 billion users, messages must never be lost."
+	
+Failover is your answer to the hidden question inside every one of those prompts: "What happens when something breaks?"
+A weak candidate waits to be asked about failures. A strong candidate proactively says: "Before I go deeper, let me call out my assumptions around availability and failure handling." That one sentence alone signals seniority.
+
+Here's the full HLD architecture a  layer by layer:
+Layer 1: Clarify requirements first — always
+	"Can I clarify a few things? What's our availability target — 99.9%, 99.99%? What's the acceptable RTO and RPO? Are we dealing with a single region or multi-region? Is this active-active or active-passive?"
+This question alone separates L4 candidates from L6. The interviewer doesn't expect you to guess — they expect you to define the problem correctly first. At Google, this is called "scoping the problem space."
+
+Follow-up: "Let's say 99.99% availability and RPO of 30 seconds."
+Response "Okay, 99.99% means we can afford roughly 52 minutes of downtime per year. That means our RTO needs to be well under 5 minutes, and 30-second RPO means synchronous replication — we cannot afford async here."
+
+RPO — Recovery Point Objective: How much data loss is acceptable? If your RPO is 5 minutes, your backups or replication must run every 5 minutes. Anything written between the last backup and the crash is gone.
+RTO — Recovery Time Objective: How fast must you recover? If your RTO is 30 seconds, your failover must complete within 30 seconds. Netflix targets single-digit second RTOs for critical paths.
+
+Layer 2: DNS + Global Load Balancer — your first line of failover
+	"I'll use Route 53 with health-check-based routing. When our primary region's health check fails, Route 53 automatically updates DNS records to point to the standby region. However, I need to call out a trade-off: DNS has TTL — even with TTL set to 60 seconds, there's propagation delay. So DNS failover alone gives us ~60–120 second RTO. For tighter RTO, I'll pair this with a Global Load Balancer that does anycast routing, which bypasses DNS TTL entirely."
+	
+Follow-up: "What's the trade-off of setting TTL to 10 seconds?"
+Response: "Lower TTL reduces failover lag but massively increases DNS query volume — at Netflix scale, that's millions of additional DNS lookups per second. We'd need to budget for that in our DNS infrastructure cost and capacity plan."
+
+Layer 3: Multi-AZ Active-Passive for App Servers
+	"Within a region, I'll deploy across at least two Availability Zones — AZ-1 as active, AZ-2 as warm standby. My application servers are stateless — no session state stored locally — which is critical. Stateless means any server in any AZ can handle any request. I'll use Auto Scaling Groups so if AZ-1 instances start failing health checks, the ALB stops routing to them and AZ-2 instances automatically scale up."
+	
+Follow-up: "What if you need sessions — say, a user's shopping cart?"
+This is a trap. A weak candidate says "I'll store sessions in memory." Strong answer: "Sessions go to a distributed cache — Redis with Redis Sentinel. The primary Redis is in AZ-1, replica in AZ-2. On primary failure, Sentinel promotes the replica automatically. My app servers never hold state — the Redis cluster is the single source of truth for session data."
+
+Layer 4: Database Failover — where most candidates get tripped up
+This is the most critical section
+"For the database, I'll use a Primary-Replica setup. Writes go only to the Primary. Reads can go to Read Replicas to scale read throughput. Now, for failover, I need to distinguish between two replication modes:
+	Synchronous replication: every write is confirmed on both primary AND standby before acknowledging to the client. Zero RPO, but adds latency to writes.
+	Asynchronous replication: primary acknowledges the write immediately, replica catches up eventually. Lower write latency, but if primary crashes before the replica syncs, you lose that delta — that's your RPO gap.
+	Given our 30-second RPO requirement, I'll use synchronous replication to the standby in AZ-2. AWS RDS Multi-AZ does exactly this — automatic promotion of the standby in 60–120 seconds."
+	
+Follow-up: "How do your application servers know which DB host to write to after promotion?"
+This is a killer question. Most candidates freeze. Strong answer: "I use a CNAME endpoint — not a raw IP. RDS gives a single endpoint like mydb.cluster.rds.amazonaws.com. After failover, RDS updates that CNAME to point to the newly promoted instance. My app servers don't need to change any configuration. This is also called a Virtual IP or floating IP pattern. In self-managed setups, tools like Patroni for PostgreSQL or Orchestrator for MySQL handle this promotion and CNAME update automatically."
+
+Layer 5: Cache Failover 
+	"Redis uses a Sentinel quorum model. Three Sentinel nodes monitor the primary. If the primary is unreachable for a configurable timeout, Sentinels vote — majority wins — and elect a new primary from the replicas. My application uses the Sentinel endpoint, not the Redis IP directly, so the switch is transparent. Key trade-off: during the election window — typically 10–30 seconds — writes to Redis may fail. My application code must handle this gracefully: catch the ConnectionError, fall through to the database as the source of truth, and log the cache miss. This is called a cache stampede mitigation pattern — you don't want all traffic hitting the DB simultaneously during a cache outage."
+
+Layer 6: Message Queue — the durability safety net
+	"For any write operations that are not immediately critical to respond to — like sending a notification, updating analytics, triggering downstream microservices — I'll route through Kafka. Kafka is a distributed, replicated commit log. Even if a consumer service goes down, messages are durably stored. When it comes back up, it resumes from its last committed offset. This decouples failover of dependent services from the critical path. Your payment confirmation goes into Kafka — even if the notification service is down for 5 minutes, no notification is lost."
+
+Layer 7: Disaster Recovery Region
+This is where Staff-level candidates separate from Senior:
+	"Everything I've described is within one region. But what if the entire us-east-1 goes down — a rare but real scenario? I'll implement a cross-region DR strategy. The question is which of the three models:
+	Cold standby: DB snapshots shipped to DR region. Cheapest, but RTO is hours — you need to spin everything up from scratch.
+	Warm standby: A scaled-down version of production running in the DR region, receiving async replication. RTO of minutes.
+	Active-active: Full production traffic split across both regions simultaneously. Zero RTO, but you now have to handle cross-region write conflicts — distributed transactions — which is the hardest problem in distributed systems.
+	For a payment system, I'd go warm standby with a 5-minute RTO target. Active-active is tempting but the consistency trade-offs in a financial system are too dangerous without careful design of conflict resolution."
+
+Follow-up: "How do you test that your failover actually works?"
+This is the final signal of a truly senior engineer. Answer: "We run Chaos Engineering — deliberately injecting failures in production or a shadow environment. Netflix built Chaos Monkey for this. We terminate random instances, cut off AZ-2 from the network, kill the primary DB — and verify that our automated failover kicks in within our RTO SLA. Failover that has never been tested is not a failover plan"
+
+Signal	What a strong candidate does
+Requirements	Asks for RTO, RPO, availability SLA before drawing anything
+Breadth	Covers DNS, LB, App tier, Cache, DB, Queue, DR
+Trade-offs	Calls out sync vs async replication, TTL vs DNS cost
+Depth	Explains CNAME promotion, Sentinel quorum, Kafka offsets
+Failure modes	Proactively mentions cache stampede, split-brain, write conflicts
+Operations	Mentions Chaos Engineering, runbooks, observability
