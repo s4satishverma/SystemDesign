@@ -75,7 +75,7 @@ Database Sharding – Splitting a database into smaller, faster parts........Don
 
 Database Architectures – Master-Slave, Master-Master, Leader-Follower........Done
 
-Failover – Switching to a backup system when primary fails.
+Failover – Switching to a backup system when primary fails...............Done
 
 Bloom Filters – Probabilistic data structure to test membership efficiently.
 
