@@ -1,0 +1,236 @@
+Bloom Filters – High-Level Design
+ 
+What is a Bloom Filter?
+A Bloom Filter is a space-efficient probabilistic data structure used to quickly answer:
+"Have I seen this item before?"
+
+It can tell you:
+Definitely Not Present
+Possibly Present
+It can never guarantee an element is present, but it can guarantee when an element is absent.
+
+Example
+Imagine security at a large airport.
+Instead of checking every passenger against a huge database of 100 million records:
+	1. Security first checks a tiny memory-efficient Bloom Filter. 
+	2. If Bloom Filter says Not Present → immediately allow. 
+	3. If Bloom Filter says Possibly Present → perform expensive database lookup. 
+This saves massive computation and database load.
+
+Why do companies use Bloom Filters?
+Companies like Google, Meta, Amazon, and Netflix deal with billions of records.
+Common problems:
+Cache Penetration
+User requests:
+/user/999999999
+User ID doesn't exist.
+Without Bloom Filter:
+
+Request
+↓
+Redis Miss
+↓
+Database Hit
+↓
+Not Found
+
+Millions of invalid requests can overload databases.
+With Bloom Filter:
+
+Request
+↓
+Bloom Filter
+↓
+Definitely Not Present
+↓
+Return 404
+
+Database never gets hit.
+
+
+Internal Structure
+Bloom Filter consists of:
+Bit Array
+0 0 0 0 0 0 0 0 0 0
+
+Multiple Hash Functions
+For example:
+
+Hash1(User123) = 2
+Hash2(User123) = 5
+Hash3(User123) = 8
+Set those positions to 1.
+0 0 1 0 0 1 0 0 1 0
+
+
+Insert Operation
+Suppose we insert:
+
+User123
+Hashes generated:
+
+2,5,8
+Update bits:
+
+Before:
+0 0 0 0 0 0 0 0 0 0
+
+After:
+0 0 1 0 0 1 0 0 1 0
+
+Complexity:
+O(k) Where: k = number of hash functions
+Typically: 3-10
+
+Search Operation
+Checking:
+User123
+Hashes: 2,5,8
+All bits are 1.
+
+Result: Possibly Present
+
+Checking: User999
+Hashes: 1,4,7
+
+Bit 4 is 0.
+Result: Definitely Not Present
+This is the key advantage.
+
+
+False Positive Problem
+Suppose:
+UserA → 2,5,8
+UserB → 1,5,9
+
+Now check:
+UserC → 1,2,8
+All bits happen to be set.
+
+Bloom Filter says: Possibly Present
+But UserC was never inserted.
+
+This is called: False Positive
+
+Actual: Not Present
+Bloom Filter: Present
+
+
+Important Rule
+Bloom Filter guarantees:
+Scenario	Possible?
+False Positive	Yes
+False Negative	No
+If Bloom Filter says: Not Present -> You can trust it 100%.
+
+
+High-Level Architecture
+User Lookup Service
+
++-----------+
+|  Client   |
++-----------+
+          |
+          v
++----------------+
+| API Gateway 
++----------------+ 
+          |
+          v
++----------------+
+| Bloom Filter   |
++----------------+
+  |                         |  
+	v                         v
+Not Present               Maybe
+    |
+    v                        |
+Return 404                   v
+                          +-------------+
+                         | Redis Cache |
+                         +-------------+
+                                    |
+                                    v
+                             +-----------+
+                             | Database  |
+                             +-----------+
+
+
+
+Production Use Cases
+1. Database Protection
+Prevent invalid lookups from reaching DB.
+
+Example:
+Instagram User Lookup
+Facebook Profile Search
+Amazon Product Lookup
+Netflix Movie Lookup
+
+
+2. Web Crawlers
+Search engines must avoid revisiting URLs.
+Visited URL?
+Bloom Filter checks instantly.
+Used by:
+	• Google Search 
+	• Microsoft Search Engines 
+
+
+3. Distributed Cache Systems
+Before Redis lookup:
+Check Bloom Filter
+Avoid cache penetration attacks.
+
+
+4. Email Spam Detection
+Known Spam Sender?
+Bloom Filter provides extremely fast filtering.
+
+
+5. Cybersecurity
+Checking:
+Malicious IP
+Blocked Device
+Known Threat
+Against billions of entries.
+
+
+Capacity Planning Example
+Suppose: 100 Million Users
+Traditional HashSet: ~2-4 GB Memory
+Bloom Filter: ~120 MB
+Huge memory savings.
+This is why large-scale systems love Bloom Filters.
+
+
+Interview Questions
+Why use Bloom Filter instead of HashSet?
+Answer:
+Bloom Filter uses significantly less memory and provides O(1) membership checks.
+
+
+What is the tradeoff?
+Answer: False positives are possible.
+
+
+Can Bloom Filter delete elements?
+Basic Bloom Filter: No
+Because clearing a bit may affect other elements.
+Use:
+ Counting Bloom Filter
+Stores counters instead of bits.
+0 1 2 0 3 1
+Allows deletion.
+
+
+Time Complexity
+Operation	Complexity
+Insert	O(k)
+Search	O(k)
+Space	O(m)
+Where:
+	• k = Hash Functions 
+	• m = Bit Array Size 
+
+"A Bloom Filter is a memory-efficient gatekeeper that can quickly tell us if data definitely does not exist, helping companies save millions of database queries every second." 
