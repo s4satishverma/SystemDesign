@@ -79,7 +79,7 @@ Failover – Switching to a backup system when primary fails...............Done
 
 Bloom Filters – Probabilistic data structure to test membership efficiently.......Done
 
-Message Queues – Asynchronous communication between services.
+Message Queues – Asynchronous communication between services..........Done
 
 WebSockets – Persistent, bi-directional client-server communication.
 
