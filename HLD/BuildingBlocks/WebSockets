@@ -1,0 +1,389 @@
+WebSockets in High-Level System Design
+
+	"How does WhatsApp instantly deliver messages?"
+	"How does a stock trading app update prices in real time?"
+	"How do multiplayer games synchronize players?"
+	
+	The answer is almost always: WebSockets
+
+Without WebSockets
+
+Browser
+
+"Any update?"
+      |
+      v
+Server
+
+"No"
+
+5 seconds later...
+
+Browser
+
+"Any update?"
+      |
+      v
+Server
+
+"No"
+
+5 seconds later...
+
+Browser
+
+"Any update?"
+      |
+      v
+Server
+
+"India scored!"
+The browser keeps asking repeatedly.
+This is called Polling.
+
+Problems:
+ Too many unnecessary requests
+ Wastes CPU
+ Wastes bandwidth
+ Higher latency
+If 5 million users are polling every 5 seconds:
+
+5,000,000 requests
+every
+5 seconds
+Your servers are busy answering:
+
+"No update"
+"No update"
+"No update"
+"No update"
+instead of doing useful work.
+
+Solution: WebSockets
+Instead of opening a new connection every time...
+Open one connection and keep it alive.
+Client ---------------------------- Server
+
+One Permanent Connection: Now both sides can communicate whenever they want.
+
+HTTP vs WebSocket
+HTTP
+Client
+GET /messages
+------------->
+Server
+<-------------
+Response
+
+Connection Closed
+Every request opens a new connection.
+
+WebSocket
+Client
+Handshake
+------------->
+Server
+Handshake OK
+<-------------
+Connection remains OPEN
+
+Client <=====================> Server
+
+Forever
+One connection.
+Unlimited communication.
+
+Real-Life Analogy
+HTTP
+Like calling your friend every minute.
+Call
+"Any news?"
+"No."
+
+Hang up.
+Repeat.
+
+WebSocket
+Stay on a phone call.
+
+Friend:
+"Guess what!"
+
+You:
+"What happened?"
+
+Friend:
+"India won!"
+Nobody hangs up.
+
+Internal Architecture
+
+                             Internet
+
+                                  |
+
+                       Load Balancer
+
+                                    |
+
+                +-------------+------------+
+
+            |                                           |
+
+WebSocket Server 1        WebSocket Server 2
+
+      |                                                 |
+
+ Thousands of                         thousands of
+ Connected Users               Connected Users
+
+
+Each server maintains thousands of open TCP connections.
+
+WebSocket Handshake
+Initially everything starts as HTTP.
+
+Client HTTP Request
+
+Upgrade: websocket -------------> Server 
+
+101 Switching Protocols <------------- After this: HTTP becomes WebSocket
+
+Now HTTP is gone. Only WebSocket frames travel.
+
+Communication Flow
+
+Client Hello -------------> Server
+
+	    Hi! <-------------
+
+Client Send Message -------------> Server
+
+Delivered <------------- Both sides can initiate communication.
+
+This is called: Bi-directional communication.
+
+Persistent Connection?
+Persistent means:
+
+Open Once
+Keep Alive
+
+Reuse Forever
+Instead of:
+
+Open
+Close
+
+Open
+Close
+
+Open
+Close
+
+Opening TCP connections repeatedly is expensive. WebSockets eliminate this overhead.
+
+Message Flow
+Imagine WhatsApp.
+
+Alice
+
+"Hello"
+
+      |
+      v
+
+WebSocket Server
+
+      |
+      v
+
+Bob
+
+Immediately, The server doesn't wait for Bob to ask. It pushes the message instantly.
+
+
+Large Scale Architecture
+
+                    Internet
+
+                        |
+
+                Load Balancer
+
+                        |
+
+      +-----------------+------------------+
+
+      |                         |                       |
+
+WS Server 1      WS Server 2       WS Server 3
+
+      |                          |                       |
+
+ Redis            Pub/Sub          Kafka / Message Broker
+
+      |
+
+Database
+
+Suppose:
+Alice is connected to Server 1.
+Bob is connected to Server 3.
+
+Alice
+     |
+WS1
+     |
+Redis/Kafka
+     |
+WS3
+     |
+Bob
+
+Without Redis/Kafka:
+Server 1 wouldn't know where Bob is.
+
+Example: Chat Application
+
+Alice sends
+
+"Hi"
+
+↓
+
+Server receives
+
+↓
+
+Store in Database
+
+↓
+
+Publish Event
+
+↓
+
+Bob's WebSocket Server
+
+↓
+
+Push Message
+
+↓
+
+Bob receives instantly No polling.
+
+Why Use Redis or Kafka?
+Imagine:
+
+Server 1
+knows Alice
+
+Server 2
+knows Charlie
+
+Server 3
+knows Bob
+
+If Alice sends a message:
+
+Server 1 ??
+
+Where is Bob?
+Redis Pub/Sub or Kafka broadcasts the event.
+
+Server 1
+↓
+Redis
+↓
+Server 3
+↓
+Bob
+
+# Heartbeat Mechanism
+Connections may silently break.
+
+Client
+PING
+------------->
+Server
+PONG
+
+
+If no response: Connection Dead
+
+Reconnect
+Every WebSocket server performs health checks.
+
+# Scaling Challenge
+One server: 100,000 users
+
+What about: 20 Million Users?
+
+We cannot use one server.
+
+Instead:
+
+Load Balancer
+↓
+500 WebSocket Servers
+
+Each server handles a subset of users.
+
+# Sticky Sessions
+A WebSocket connection must remain on the same server after it's established.
+
+Client
+↓
+Load Balancer
+↓
+Server 5
+
+Connection stays here, If the load balancer moves packets to another server:
+
+Server :- I don't know this connection. That's why WebSocket deployments typically use sticky sessions (or consistent routing) for the lifetime of the connection.
+
+Advantages
+Real-time communication
+Very low latency
+Bi-directional messaging
+Less network overhead
+Reduced bandwidth compared to polling
+Better user experience
+
+Disadvantages
+ Oen connections consume server memory.
+ Harder to scale than stateless HTTP APIs.
+ Load balancing requires connection-aware routing.
+ Idle connections need heartbeat (Ping/Pong) management.
+ Not ideal for simple request-response APIs.
+
+# Where WebSockets Are Used
+Application	Why WebSockets?
+WhatsApp	Instant messaging
+Slack	Live collaboration
+Microsoft Teams	Presence and chat
+Discord	Voice, chat, notifications
+Online Gaming	Real-time player updates
+Trading Platforms	Live stock prices
+Ride Sharing	Driver location updates
+Food Delivery	Live order tracking
+IoT Dashboards	Continuous sensor updates
+Live Sports	Instant score updates
+
+Rule of thumb:
+	• Use REST for actions like login, profile updates, placing an order, or fetching historical data. 
+	• Use WebSockets when the server needs to push updates instantly, such as chat messages, live notifications, stock prices, multiplayer game events, or collaborative editing. 
+
+
+If asked, "How would you design a real-time chat system?", a strong high-level answer is:
+	1. Client authenticates using REST. 
+	2. Client upgrades the connection to a WebSocket. 
+	3. The load balancer routes the connection to a WebSocket server (typically using sticky sessions). 
+	4. Each WebSocket server maintains thousands of persistent client connections. 
+	5. When a user sends a message, the server validates it and stores it in the database. 
+	6. The message is published to a message broker such as Redis Pub/Sub or Kafka. 
+	7. The WebSocket server hosting the recipient receives the event and immediately pushes the message to the recipient over the existing WebSocket connection. 
+	8. Heartbeats (Ping/Pong) detect broken connections, and clients automatically reconnect if needed. 
+This architecture delivers low-latency, scalable, real-time communication and is the pattern used by many large-scale systems such as chat platforms, collaborative applications, trading systems, and live notification services.
