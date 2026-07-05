@@ -85,8 +85,6 @@ WebSockets – Persistent, bi-directional client-server communication.
 
 Checksums – Data integrity verification.
 
-Microservices Guidelines – Best practices for modular service design.
-
 Distributed Locking – Ensuring only one process accesses shared resource at a time.
 
 
