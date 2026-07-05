@@ -81,7 +81,7 @@ Bloom Filters – Probabilistic data structure to test membership efficiently...
 
 Message Queues – Asynchronous communication between services..........Done
 
-WebSockets – Persistent, bi-directional client-server communication.
+WebSockets – Persistent, bi-directional client-server communication......Done
 
 Checksums – Data integrity verification.
 
