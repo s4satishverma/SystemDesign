@@ -1,0 +1,34 @@
+The Analogy First
+Imagine you're mailing a jigsaw puzzle to a friend. Before sealing the box, you count the pieces — say, 500. You write "500 pieces" on a sticky note inside the box. When your friend opens it, they count the pieces again. If they get 500, they trust the puzzle arrived intact. If they get 498, they know something got lost in transit — without needing to solve the puzzle first.
+A checksum is that sticky note, but for data.
+
+What Problem Are We Actually Solving?
+Data moves constantly — over networks, through disks, across services. Every hop is a chance for corruption: a flipped bit from a noisy wire, a truncated file from a bad disk write, a tampered payload from a man-in-the-middle. Checksums answer one narrow but critical question: "Did the data change since it was sent?" Nothing more. Not "who sent it" (that's a digital signature's job), not "can I recover it" (that's error-correction's job).
+
+HLD Breakdown
+1. The core algorithm (the "checksum function")
+This is a mathematical function that takes any amount of data — a byte, a file, a terabyte — and squeezes it into a fixed-size fingerprint. Feed it a 5MB file, you get a fingerprint. Feed it that same 5MB file with one bit flipped, you get a completely different fingerprint. That's the entire trick: small input change → wildly different output. This property is called the avalanche effect.
+
+2. Where it fits in the flow
+	• Sender computes the checksum once, before transmission.
+	• Sender ships the data and the checksum together.
+	• Receiver runs the exact same function on the data it received.
+	• Receiver compares its freshly computed checksum against the one that arrived.
+	• Match → trust the data. Mismatch → something got corrupted, ask for a resend or flag it.
+Notice: the receiver never trusts the sender's claim blindly — it independently re-derives the fingerprint. That's the design principle worth remembering for interviews: verification must be recomputed, not just relayed.
+
+3. Picking the right algorithm — the real design decision
+This is where interviewers probe. Not all checksums are equal:
+Algorithm	Speed	Collision resistance	Typical use
+Parity bit	Blazing fast	Very weak (misses 2-bit errors)	Old serial comms, RAM
+CRC32	Fast	Good for accidental corruption	Ethernet, ZIP, PNG
+MD5	Fast	Broken for security (collisions found)	Legacy dedup, non-security checks
+SHA-256	Slower	Cryptographically strong	Git commits, blockchain, TLS certs, package managers
+The trade-off is speed vs. tamper-resistance. CRC32 will catch a bit flip from a bad network cable, but it's trivial for someone malicious to craft a different file with the same CRC32. SHA-256 makes that computationally infeasible. This is why Git uses SHA (data integrity + protection against tampering), while your home Wi-Fi packets use a lightweight CRC (just catching noise, no adversary involved).
+
+4. Non-functional considerations (what makes this "HLD" and not just an algorithm)
+	• Where is it computed? Client-side (before upload) is better than server-side-only, since it also catches corruption during upload.
+	• Storage cost: A checksum is tiny (32 bytes for SHA-256) compared to the data it protects — cheap insurance.
+	• Layering: In real systems, checksums exist at multiple layers simultaneously — TCP has one, your disk's filesystem (ZFS, for example) has one, and your application might add its own. Defense in depth.
+	• What checksums don't do: they don't fix the error, they don't tell you who sent it, and a weak checksum (CRC) can be deliberately spoofed. If you need tamper-proof identity too, you're now talking about HMAC or digital signatures 
+	• One-line interview soundbite: A checksum trades a small, fixed-size fingerprint for a strong probabilistic guarantee that data arrived unchanged — the algorithm you pick depends on whether you're defending against noise or against an adversary.
