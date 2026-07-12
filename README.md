@@ -83,7 +83,7 @@ Message Queues – Asynchronous communication between services..........Done
 
 WebSockets – Persistent, bi-directional client-server communication......Done
 
-Checksums – Data integrity verification.
+Checksums – Data integrity verification........................Done
 
 Distributed Locking – Ensuring only one process accesses shared resource at a time.
 
