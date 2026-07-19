@@ -1,0 +1,281 @@
+Why do we even need Distributed Locking?
+Imagine your application is running on one server.
+
+        Client
+           |
+       +---------+
+       | Server  |
+       +---------+
+If two threads access the same object, Java's
+	• synchronized 
+	• ReentrantLock 
+	• Semaphore 
+are enough. Because all threads are inside one JVM.
+
+But what happens in Distributed Systems?
+At Big companies your application doesn't run on one server.
+It may run on
+
+             Load Balancer
+           /      |      \
+      Server1  Server2  Server3
+
+Each server has
+	• its own JVM 
+	• its own memory 
+	• its own locks 
+	
+Now imagine
+
+User A
+      \
+       Server 1
+User B
+      \
+       Server 2
+Both try to modify Account #123 at exactly the same time.
+
+Server 1 executes synchronized(account)
+Server 2 also executes synchronized(account)
+Problem?
+These locks are completely different. Each server thinks "I own the lock." Now both update the database.
+
+Result:
+Balance becomes incorrect.
+Duplicate orders
+Duplicate payments
+Inventory mismatch
+This is called Race Condition
+
+Real World Example
+Suppose Flipkart has Only 1 iPhone left, Two customers purchase simultaneously.
+
+Customer A ---> Server1
+Customer B ---> Server2
+
+Without distributed locking, Both servers read Stock = 1,
+both reduce stock
+Stock = 0
+Stock = -1
+Now company sold 2 phones, Only had 1. Huge business issue.
+
+Solution
+We need one lock that every server can understand, Not JVM lock.
+A Distributed Lock.
+
+               Lock Server
+	              LOCK
+                  |
+      ----------------------------
+      |            |             |
+ Server1      Server2      Server3
+
+Only one server gets LOCK SUCCESS, Others wait.
+
+Architecture
+
+                 Client Requests
+                        |
+                Load Balancer
+                        |
+      ----------------------------------
+      |               |               |
+   Service A      Service B      Service C
+      |               |               |
+      -------Distributed Lock---------
+                    |
+               Redis / ZooKeeper
+                    |
+                 Database
+
+Before modifying data, Every service asks
+
+Can I get lock?
+If YES Continue.
+Otherwise Wait.
+
+Workflow
+Suppose
+Order #101
+needs processing.
+
+Step 1
+Server A requests Lock(Order101)
+Redis replies Granted
+
+Step 2
+Server B also requests Lock(Order101)
+Redis replies Already Locked, Server B waits.
+
+Step 3
+Server A updates database.
+Inventory
+Payment
+Order Status
+
+Step 4
+Server A releases lock, Unlock(Order101)
+
+Step 5
+Redis now gives lock to Server B, Perfect synchronization.
+
+
+Evolution of Locks
+
+No Lock
+     ↓
+Mutex / Monitor Lock
+     ↓
+Read-Write Lock
+     ↓
+Optimistic Lock
+     ↓
+Pessimistic Lock
+     ↓
+Database Lock
+     ↓
+Distributed Lock
+
+Each lock solves a different problem.
+
+1. No Lock
+Imagine two threads updating the same bank account.
+
+Balance = $100
+Thread A withdraws $20
+Thread B withdraws $30
+Both read 100, and Both calculate independently.
+100 - 20 = 80
+100 - 30 = 70
+Final balance becomes 70 but Expected 50
+This is called Race Condition
+
+2. Mutex Lock (Mutual Exclusion)
+Purpose
+Only one thread enters the critical section.
+
+          Thread A
+              |
+          Gets Lock
+              |
+      Critical Section
+              |
+         Releases Lock
+         
+	   Thread B
+        |
+   Waiting
+
+Java 
+synchronized(lock) {
+    updateBalance();
+}
+or
+ReentrantLock
+Works only
+	• inside one JVM 
+	• one machine 
+Not across servers.
+
+3. Read-Write Lock
+Sometimes 100 users are only reading. Only one user writes.
+Should readers wait? No.
+Instead Readers
+Thread A
+Thread B
+Thread C
+Can run together.
+--------------------
+Writer
+Thread D
+Must wait
+Example
+
+Product Catalog
+Thousands of users
+↓
+
+Reading products
+↓
+
+One admin updates price
+Many readers.
+Single writer.
+
+Java - ReadWriteLock
+Benefit - Much higher throughput.
+
+4. Optimistic Lock
+Assumption: Nobody will modify the data. Instead of locking, check later.
+Example
+Version = 10, Thread A reads
+
+Version =10, Thread B reads
+
+Version =10, Thread A updates
+
+Version becomes 11 Thread B now tries then Database says
+Expected Version=10
+Actual Version=11
+
+Update rejected. Retry. No locking. Very scalable.
+
+Commonly implemented using @Version JPA Hibernate
+Good for Mostly Reads, Rare Writes
+
+5. Pessimistic Lock
+Opposite assumption.
+Assume conflicts will happen.
+Lock first. Then update.
+
+Thread A - Gets Lock - Updates Unlocks
+
+Thread B - Waits
+
+SQL
+SELECT * FROM Account FOR UPDATE;
+Nobody else can update.
+
+Best for Banking, Payments, Inventory, Trade-off, Less concurrency.
+
+6. Database Locks
+Database itself manages locks.
+
+Types
+Row Lock
+Table Lock
+Page Lock
+Schema Lock
+
+Example
+
+UPDATE Employee WHERE ID=100 Only Employee 100 gets locked.
+Other rows remain available.
+If ALTER TABLE Employee, Entire table may lock.
+
+Row Lock
+Employee Table
+ID  Name
+1   John
+2   Alice
+3   Bob
+Can Only ID=2 locked. Highly scalable.
+
+
+Comparison Table
+Lock Type	Scope	Best For	Drawback
+Mutex	Single Thread/Process	Critical section	One JVM only
+Read-Write Lock	Single JVM	Read-heavy systems	Writer starvation possible
+Optimistic Lock	Database/Application	Low conflict workloads	Retries on conflict
+Pessimistic Lock	Database	High conflict workloads	Lower concurrency
+Database Lock	Database	Row/Table protection	Database contention
+Distributed Lock	Multiple Servers	Microservices, Distributed Systems	Network latency and lock management complexity
+
+Interviewer: When would you use each type of lock?
+Answer:
+	• Mutex (synchronized, ReentrantLock) – Protect shared memory within a single JVM. 
+	• Read-Write Lock – Use when reads are much more frequent than writes (e.g., product catalogs, configuration caches). 
+	• Optimistic Lock – Use when conflicts are rare and you want maximum throughput (e.g., user profiles, order history). 
+	• Pessimistic Lock – Use when conflicts are common and data consistency is critical (e.g., banking, payments, inventory deduction). 
+	• Database Locks – Let the database enforce consistency for rows or tables during transactions. 
+	• Distributed Lock – Use when multiple application instances across different servers must coordinate access to the same shared resource (e.g., cron jobs, inventory reservation, leader election).
