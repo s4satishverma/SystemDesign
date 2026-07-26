@@ -1,0 +1,204 @@
+Vertical vs Horizontal Scaling
+Imagine your Spring Boot service starts receiving more traffic.
+
+                 More Traffic
+                     |
+               Load increases
+                     |
+          +----------+----------+
+          |                     |
+     Vertical Scaling      Horizontal Scaling
+       "Scale Up"            "Scale Out"
+          |                     |
+     Bigger machine        More machines/pods
+
+1. Vertical Scaling — Scale Up
+You make the existing server more powerful.
+
+Before
+Spring Boot
+   |
++--------+
+| 4 CPU  |
+| 8 GB   |
++--------+
+After
+Spring Boot
+   |
++---------+
+| 16 CPU  |
+| 64 GB   |
++---------+
+For example, suppose your Java service has:
+
+4 CPU
+8 GB RAM
+and starts struggling.
+You upgrade it to:
+
+16 CPU
+64 GB RAM
+You still have one application instance, but it's much stronger.
+Advantages
+	• Simple architecture 
+	• No distributed-system complexity 
+	• No load balancer required 
+	• Easier debugging 
+	• Useful for databases and legacy systems 
+	• Minimal application changes 
+	
+Trade-offs
+The biggest problem is that hardware has a ceiling.
+
+8 GB → 16 GB → 32 GB → 64 GB → 128 GB → ???
+
+Eventually you cannot keep scaling. It can also leave you with a major single point of failure.
+
+Users
+  |
+  v
+Huge Server
+  |
+  X  server crashes
+  |
+Entire application unavailable And large machines can become disproportionately expensive.
+
+2. Horizontal Scaling — Scale Out
+Instead of making one server bigger, you add more instances.
+
+                   Users
+                     |
+               Load Balancer
+                     |
+        +------------+------------+
+        |                 |                |
+        v                 v                 v
+     Pod-1         Pod-2         Pod-3
+ Spring Boot   Spring Boot   Spring Boot
+
+For Kubernetes/OpenShift, this is exactly what you're commonly doing when increasing replicas:
+
+replicas: 3
+Becoming replicas: 10
+
+Now traffic gets distributed across 10 Spring Boot instances.
+
+Advantages
+Horizontal scaling gives you:
+	• High availability 
+	• Fault tolerance 
+	• Elastic scaling 
+	• Much larger scalability ceiling 
+	• Rolling deployments 
+	• Better resilience to machine failure 
+	
+If one instance dies:
+
+               Load Balancer
+                /    |    \
+              /      X      \
+            v                  v
+           Pod-1        Pod-3
+the other instances can continue serving traffic. This is one reason cloud-native architectures strongly favour horizontal scaling.
+
+The Important HLD Trade-offs
+This is where I'd expect a senior engineer to go beyond saying "vertical = bigger machine, horizontal = more machines."
+Area	Vertical	Horizontal
+Approach	Bigger machine	More machines
+Complexity	Low	Higher
+Scalability	Limited	Very high
+Availability	Lower	High
+Fault tolerance	Poorer	Better
+Load balancer	Usually unnecessary	Usually required
+Distributed-system issues	Few	Many
+Cost model	Powerful machines become expensive	Commodity instances
+Cloud/Kubernetes	Less ideal	Excellent
+Stateful apps	Easier	Harder
+Operational complexity	Lower	Higher
+
+The hidden cost of horizontal scaling
+Horizontal scaling sounds superior, but it introduces distributed-system problems. Suppose you have:
+
+               Load Balancer
+              /      |      \
+             /       |       \
+          Pod A    Pod B    Pod C
+
+Request 1 might hit Pod A.
+Request 2 from the same user might hit Pod C.
+If Pod A stored this in memory: session.setAttribute("cart", cart);
+Pod C doesn't know about it. That's why horizontally scalable applications should generally aim to be stateless.
+
+Instead:
+
+Pod A ----\
+Pod B -----+----> Redis / Database
+Pod C ----/
+Shared state moves outside the application instances. This affects many architectural decisions:
+
+Sessions        → Redis / external session store
+Files           → S3 / object storage
+Cache           → Distributed cache
+Database        → Shared/distributed database
+Events          → Kafka
+Configuration   → Centralized configuration
+
+Java-specific consideration: JVM
+Vertical scaling also has an interesting JVM implication. Giving a Java application:
+
+256 GB RAM isn't automatically better than running several JVMs with smaller heaps.
+Very large heaps can make GC behaviour, tuning and failure blast radius more challenging.
+You might prefer:
+
+             Load Balancer
+                        |
+       +-----------+-----------+
+       |                |               |
+     JVM-1       JVM-2       JVM-3
+     8 GB          8 GB            8 GB
+
+instead of:  JVM 24 GB depending on workload, collector, latency requirements and infrastructure.
+Horizontal scaling also lets Kubernetes replace unhealthy JVM instances independently.
+
+FAANG-style HLD decision
+If I were designing a high-traffic Java service, I'd usually start with:
+
+                    Internet
+                       |
+                  API Gateway
+                       |
+                 Load Balancer
+                       |
+            Kubernetes Service
+                       |
+        +--------------+--------------+
+        |                   |                    |
+ Spring Boot    Spring Boot  Spring Boot
+      Pod               Pod                Pod
+        |                   |                    |
+        +--------------+--------------+
+                             |
+             Redis / Kafka / DB
+
+and configure autoscaling around meaningful signals such as CPU, memory, request rate, latency, queue depth, or custom metrics. But horizontal scaling does not solve every bottleneck.
+ 
+For example:
+
+10 Pods
+   ↓
+20 Pods
+   ↓
+50 Pods
+   ↓
+100 Pods
+   ↓
+Database 💥
+You've scaled the application tier but may simply have moved the bottleneck to the database. A Tech Lead therefore asks: If I scale this component, what becomes the next bottleneck?
+That question leads into connection pooling, caching, read replicas, partitioning/sharding, async processing, backpressure, rate limiting, and database scaling.
+
+Interview answer
+If an interviewer asks "Vertical vs horizontal scaling?", a strong concise answer is:
+	Vertical scaling increases the resources of an existing machine, such as CPU and memory. It's operationally simpler but has hardware limits and can retain a large failure domain.
+	Horizontal scaling adds more application instances and distributes traffic through a load balancer. It provides better elasticity, availability and fault tolerance, but introduces distributed-system complexity such as state management, consistency, coordination and observability.
+	For a large-scale Spring Boot microservice, I'd generally design the application to be stateless and horizontally scalable, while independently identifying and scaling downstream bottlenecks such as the database, cache and messaging infrastructure.
+Memory shortcut: Vertical = bigger box. Horizontal = more boxes. Tech Lead = understand what breaks when you add more boxes.
