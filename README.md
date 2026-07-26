@@ -85,7 +85,7 @@ WebSockets – Persistent, bi-directional client-server communication......Done
 
 Checksums – Data integrity verification........................Done
 
-Distributed Locking – Ensuring only one process accesses shared resource at a time.
+Distributed Locking – Ensuring only one process accesses shared resource at a time.......Done
 
 
 3. Trade-offs
