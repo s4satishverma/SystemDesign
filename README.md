@@ -90,7 +90,7 @@ Distributed Locking – Ensuring only one process accesses shared resource at a 
 
 3. Trade-offs
    
-Vertical vs Horizontal Scaling
+Vertical vs Horizontal Scaling...................Done
 
 Concurrency vs Parallelism
 
