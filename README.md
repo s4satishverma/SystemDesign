@@ -92,7 +92,7 @@ Distributed Locking – Ensuring only one process accesses shared resource at a 
    
 Vertical vs Horizontal Scaling...................Done
 
-Concurrency vs Parallelism
+Concurrency vs Parallelism............Done
 
 Long Polling vs WebSockets
 
