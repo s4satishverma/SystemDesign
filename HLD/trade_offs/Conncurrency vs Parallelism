@@ -1,0 +1,22 @@
+The one-line distinction: Concurrency is about managing multiple tasks — dealing with more than one thing at a time. Parallelism is about executing multiple tasks — actually doing more than one thing at the exact same instant.
+Concurrency is a design property of your program's structure; parallelism is a runtime property that depends on hardware.
+
+The analogy that lands in interviews
+Picture a single cashier at a coffee shop handling five customers. She's concurrent: she takes an order, starts the espresso machine, switches to hand another customer their change, checks on the milk steamer, moves back she's juggling all five,
+but never doing two things in the same physical moment. Now put five cashiers at five registers. That's parallelism: five orders happening at literally the same instant.
+
+You can have concurrency without parallelism (one cashier, five customers). You can have parallelism without much concurrency (five cashiers, each handling one simple order start-to-finish with no juggling). And you can have both — five cashiers, each juggling three customers apiece. That combination is what real backend systems look like.
+
+Where this shows up in a Java / HLD context
+	• Concurrency, single core: A single-threaded Java service using CompletableFuture / non-blocking I/O. The CPU rapidly switches between waiting-on-DB, waiting-on-network, and doing-CPU-work — nothing is truly simultaneous, but throughput improves because the CPU never idles waiting on I/O.
+	• Parallelism, no real concurrency design: Running four independent batch jobs on four separate JVMs. Simple, embarrassingly parallel, no coordination needed.
+	• Both, together — the interesting case: A Kafka consumer group with N partitions and N threads across M cores. You've designed for concurrency (each thread independently manages its own consumer loop, offsets, retries) and the hardware gives you parallelism (multiple cores actually executing those threads at once). This is the combination senior interviewers are probing for when they ask "how would you scale this consumer?"
+
+The interview-answer structure I'd coach you to use
+	1. State the definitions crisply — dealing with many things vs. doing many things at the same time.
+	2. Anchor it to hardware — concurrency is a program structure concern (works even on a single core); parallelism requires multiple cores or machines.
+	3. Give a Java-specific example — ExecutorService with a single thread pool is concurrent but not parallel; a ForkJoinPool splitting a large array sum across cores is both.
+	4. Connect to HLD — this is why you separate "scale out I/O-bound work" (concurrency: async I/O, non-blocking clients, thread pools tuned for waiting) from "scale out CPU-bound work" (parallelism: horizontal scaling, partitioning, more cores/machines). Conflating the two is a common design smell interviewers listen for — e.g., someone throwing more threads at a CPU-bound problem on a 4-core box and wondering why it doesn't scale past 4x.
+
+If a candidate can say "I added threads to hide I/O latency — that's exploiting concurrency, not parallelism, and only helps up to the point where I run out of connections or context-switch overhead dominates," that's the sentence that separates a senior answer from a mid-level one.
+
