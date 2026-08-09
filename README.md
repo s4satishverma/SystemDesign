@@ -94,7 +94,7 @@ Vertical vs Horizontal Scaling...................Done
 
 Concurrency vs Parallelism............Done
 
-Long Polling vs WebSockets
+Long Polling vs WebSockets..................Done
 
 Batch Processing vs Stream Processing
 
