@@ -1,0 +1,233 @@
+1. The HLD Problem
+Imagine a real-time notification system: User opens the application → server needs to notify the user immediately when a new event arrives.
+Examples:
+	• Chat applications 
+	• Stock price updates 
+	• Order-status tracking 
+	• Notifications 
+	• Gaming 
+	• Live dashboards 
+	
+The key HLD question is: How does the server deliver new data to the client without the client constantly refreshing?
+Two common approaches are:
+
+                 Real-Time Communication
+                              |
+             +-----------+-----------+
+             |                                 |
+        Long Polling             WebSocket
+             |                                |
+     HTTP connection          Persistent TCP
+     repeatedly requested     bidirectional channel
+
+2. Long Polling
+Normal polling looks like:
+
+Client                         Server
+  |                                                 |
+  |---- GET /notifications ----->|
+  |<------- empty --------------    |
+  |                                                |
+  |---- GET /notifications ----->|
+  |<------- empty --------------    |
+  |                                                 |
+  |---- GET /notifications ----->|
+  |<----- notification ----------   |
+The client keeps asking:
+	"Anything new?"
+	
+Long Polling improves this
+Instead of immediately responding, the server holds the HTTP request until data becomes available.
+
+Client                                     Server
+  |                                                |
+  |---- GET /notifications ----->|
+  |                                                |
+  |         WAIT...                          |
+  |                                                |
+  |         WAIT...                          |
+  |                                                |
+  |<----- notification ----------   |
+  |                                                 |
+  |---- GET /notifications ----->|
+  |                                                 |
+So the client makes another request after receiving a response.
+
+3. WebSockets
+WebSocket works differently.
+First, the client establishes a connection:
+
+Client                         Server
+  |                                                     |
+  |---- HTTP Upgrade ----------->   |
+  |<--- 101 Switching Protocols - |
+  |                                                      |
+  |====== WebSocket OPEN ========|
+Now the connection stays open.
+Either side can send messages.
+
+Client                                     Server
+  |                                                |
+  |<------- notification --------   |
+  |                                                |
+  |-------- message ------------> |
+  |                                                |
+  |<------- notification --------   |
+  |                                                |
+  |<------- notification --------   |
+  |                                                |
+  |-------- message ------------> |
+That's the fundamental difference.
+
+4. HLD Comparison
+	Long Polling	WebSocket
+Protocol	HTTP	WebSocket
+Connection	Repeated HTTP requests	Persistent
+Communication	Mostly client → server requests	Bidirectional
+Server push	Yes, indirectly	Yes, natively
+Latency	Low	Very low
+HTTP overhead	Higher	Lower after handshake
+Scalability	Easier	More challenging
+Load balancer	Simpler	Needs WebSocket support
+Stateful connection	No	Yes
+Best for	Occasional updates	Continuous real-time
+Complexity	Low	Medium/High
+
+5. HLD Architecture — Long Polling
+
+                  ┌───────────────┐
+                  │    Client                   │
+                  └───────┬──────┘
+                          │
+                          │ HTTP
+                          ▼
+                  ┌───────────────┐
+                  │ Load Balancer       │
+                  └───────┬──────┘
+                                    │
+             ┌────────────┴────────────┐
+             ▼                                                      ▼
+      ┌─────────────┐          ┌─────────────┐
+      │ Spring Boot       │          |    Spring Boot    │
+      │ Instance 1          │          │ Instance 2         │
+      └──────┬──────┘          └──────┬────┘
+             │                                                     │
+             └────────────┬──────────┘
+                                          ▼
+                   ┌─────────────┐
+                   │    Kafka               │
+                   └─────────────┘
+The important HLD problem appears when you have multiple instances.
+Suppose:
+
+User A
+  |
+Load Balancer
+  |
+Instance 1
+
+But the event arrives at:
+
+Kafka
+  |
+Instance 2
+
+Instance 1 is waiting for the notification.
+Instance 2 received it.
+
+How does Instance 1 know?
+You need shared infrastructure such as:
+	• Kafka 
+	• Redis Pub/Sub 
+	• database 
+	• distributed event bus 
+
+6. HLD Architecture — WebSockets
+
+                  ┌───────────────┐
+                  │    Client                   │
+                  └───────┬──────┘
+                                     │
+                           WebSocket
+                                    │
+                                   ▼
+                  ┌───────────────┐
+                  │ Load Balancer       │
+                  └───────┬──────┘
+                                     │
+             ┌─────────┴────────────┐
+             ▼                                                ▼
+      ┌─────────────┐          ┌─────────────┐
+      │ Spring Boot       │          │ Spring Boot       │
+      │ Instance 1         │          │ Instance 2          │
+      └──────┬─────┘          └──────┬─────┘
+             │                                                   │
+             └────────────┬─────────┘
+                                          ▼
+                   ┌─────────────┐
+                   │    Kafka              │
+                   └─────────────┘
+But now each application instance maintains:
+
+WebSocket connection
+       ↓
+Client session
+       ↓
+Memory of application instance
+
+Therefore, horizontal scaling becomes more complicated.
+
+7. The Most Important HLD Interview Point
+
+The real trade-off is:
+
+Long Polling
+Simple
+  ↓
+Stateless HTTP
+  ↓
+Easy horizontal scaling
+  ↓
+Higher HTTP overhead
+
+WebSocket
+Persistent connection
+  ↓
+Lower latency
+  ↓
+Bidirectional communication
+  ↓
+Stateful connection management
+  ↓
+More complex scaling
+
+8. When Would I Choose Which?
+Choose Long Polling when:
+
+Updates are relatively infrequent
+        +
+Simple architecture preferred
+        +
+Existing HTTP infrastructure
+        +
+Occasional near-real-time updates
+Examples:
+	• Job status 
+	• Payment processing status 
+	• Background task completion 
+	• Notification updates 
+Choose WebSockets when:
+
+Continuous real-time communication
+        +
+Very low latency
+        +
+Bidirectional communication
+        +
+Many messages
+Examples:
+	• Chat 
+	• Multiplayer games 
+	• Trading dashboards 
+	• Collaborative editing 
+	• Live tracking 
