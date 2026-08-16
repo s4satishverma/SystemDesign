@@ -96,7 +96,7 @@ Concurrency vs Parallelism............Done
 
 Long Polling vs WebSockets..................Done
 
-Batch Processing vs Stream Processing
+Batch Processing vs Stream Processing..........Done
 
 Stateful vs Stateless Design
 
