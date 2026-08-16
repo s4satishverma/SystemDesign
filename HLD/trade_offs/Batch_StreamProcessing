@@ -1,0 +1,103 @@
+
+Batch Processing
+Process data in chunks at scheduled intervals.
+
+Data Sources
+↓
+Data Lake / Database
+↓
+[Collect millions of records]
+↓
+Batch Job
+↓
+Process / Transform
+↓
+Data Warehouse
+Example:
+	Every night at 2 AM, process all transactions from the previous day and generate reports.
+Typical technologies:
+	• Spark 
+	• Hadoop 
+	• Airflow 
+	• Spring Batch 
+	• AWS Glue 
+	• BigQuery scheduled jobs 
+
+Stream Processing
+Process data continuously as it arrives.
+
+Producer
+↓
+Kafka
+↓
+Stream Processor
+↓
+┌──────────┬───────────┐
+↓          ↓           ↓
+DB       Elasticsearch  Alert
+Example:
+	Customer makes a credit-card transaction → process it immediately → detect fraud → potentially block the transaction.
+Typical technologies:
+	• Kafka 
+	• Kafka Streams 
+	• Flink 
+	• Spark Streaming 
+	• AWS Kinesis 
+
+2. HLD Trade-off
+Dimension	Batch	Stream
+Latency	Minutes → hours	Milliseconds → seconds
+Processing	Fixed chunks	Continuous
+Complexity	Lower	Higher
+Infrastructure cost	Usually lower	Usually higher
+Real-time capability	❌ Poor	✅ Excellent
+Throughput	Excellent	Excellent
+Failure recovery	Relatively simple	More complicated
+Ordering	Easier	More challenging
+State management	Easier	Complex
+Backpressure	Less concern	Important
+Monitoring	Easier	More sophisticated
+Use case	Reports, ETL	Fraud, alerts, recommendations
+
+3. The MOST important HLD trade-off
+Think about this question: "How quickly does the business need the result?"
+If minutes/hours are acceptable
+Use Batch.
+
+10 million transactions
+↓
+Wait
+↓
+Batch job
+↓
+Process everything
+↓
+Generate report
+Example:
+Daily bank statement generation
+There is no reason to continuously process every transaction just to generate a statement once per day.
+
+If milliseconds/seconds matter
+Use Streaming.
+
+Transaction
+↓
+Kafka
+↓
+Fraud Service
+↓
+Risk Score
+↓
+Approve / Reject
+Example:
+Credit-card fraud detection
+You cannot wait until midnight to detect fraud.
+
+Answer
+If interviewer asks: "What is the trade-off between batch and stream processing?"
+"Batch processing processes data periodically in large chunks, so it is simpler and generally more cost-effective, but it has higher latency. Stream processing processes events continuously, giving near-real-time results, but it introduces significantly more complexity around ordering, state management, retries, offsets, backpressure, and exactly-once or idempotent processing. I would choose based on the business latency requirement. For daily reporting, batch is appropriate; for fraud detection or real-time notifications, streaming is better. In many production systems, I would use a hybrid architecture where streaming handles real-time use cases and batch handles historical analytics and reconciliation."
+
+One-line memory trick
+Batch = Simple + Cheap + High Latency
+Stream = Real-time + Complex + Higher Operational Cost
+Hybrid = Real-time Stream + Historical Batch
