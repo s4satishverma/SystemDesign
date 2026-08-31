@@ -1,0 +1,288 @@
+1. Start with the simplest definition
+The easiest way to understand the difference is:
+	Stateful system remembers you. Stateless system does not.
+Imagine you're going to a restaurant.
+Stateful
+You sit at a table and the waiter remembers:
+	"This customer ordered a Coke and a Pizza."
+If you come back to the same waiter, they know your previous context.
+That's similar to a stateful server.
+Stateless
+Every time you talk to a waiter, you provide everything they need:
+	"I'm customer #123, here's my order information."
+The waiter doesn't need to remember anything from your previous request.
+That's a stateless server.
+
+2. What is State?
+Before understanding stateful vs stateless, we need to understand state.
+State means information that needs to be remembered between requests.
+For example:
+
+User logs in
+      ↓
+Server creates session
+      ↓
+Session ID = ABC123
+      ↓
+User makes another request
+      ↓
+Server needs to remember ABC123
+That remembered information is state.
+Examples:
+	• Logged-in user session 
+	• Shopping cart 
+	• Authentication context 
+	• Multi-step workflow 
+	• Game progress 
+	• WebSocket connection state 
+	• Temporary transaction information 
+
+3. Stateful Architecture
+In a stateful architecture, the application server maintains client-specific information.
+
+                 ┌──────────────┐
+User ─► │ Load Balancer     │
+                 └──────┬──────┘
+                                  │
+                 ┌──────▼──────┐
+                 │   Server 1              │
+                 │                               │
+                 │ Session A             │
+                 └──────────────┘
+
+                 ┌───────────────┐
+                 │   Server 2               │
+                 │                                 │
+                 │ Session B               │
+                 └───────────────┘
+Suppose the first request goes to Server 1:
+
+Request 1 → Server 1
+             ↓
+         Session created
+             ↓
+         Session A
+Then the next request goes to Server 2:
+
+Request 2 → Server 2
+             ↓
+       Session not found
+Now we have a problem.
+Server 2 doesn't know about the state stored in Server 1.
+
+4. Sticky Sessions
+One solution is sticky sessions.
+The load balancer always sends the same user to the same server.
+
+User A
+  │
+  ▼
+Load Balancer
+  │
+  ├──────────────► Server 1
+  │                  Session A
+  │
+  │
+User A's future requests
+  │
+  └──────────────► Server 1
+This works, but introduces architectural problems.
+Problem #1 — Scaling
+Suppose Server 1 becomes overloaded.
+You add:
+
+Server 1
+Server 2
+Server 3
+But User A's session is still tied to Server 1.
+So distributing traffic becomes harder.
+Problem #2 — Server failure
+If Server 1 crashes:
+
+Server 1 
+   ↓
+Session A lost
+Unless the state is replicated somewhere else, the user may be logged out or lose their workflow.
+Problem #3 — Uneven load
+Sticky sessions can result in:
+
+Server 1 → 80% traffic
+Server 2 → 10%
+Server 3 → 10%
+while another server may be mostly idle.
+
+5. Stateless Architecture
+Now let's look at stateless design.
+The server doesn't maintain client-specific session state locally.
+
+                 ┌──────────────┐
+User ─── │ Load Balancer     │
+                 └──────┬──────┘
+                                     │
+              ┌─────────┼─────────┐
+              ▼                  ▼                  ▼
+           Server 1      Server 2          Server 3
+Any request can go to any server.
+
+Request 1 → Server 1
+Request 2 → Server 3
+Request 3 → Server 2
+Request 4 → Server 1
+And everything still works.
+Why?
+Because the server doesn't depend on locally stored session state.
+
+6. Where does the state go?
+This is the most important HLD concept.
+Stateless does NOT mean:
+	"There is no state anywhere."
+It means:
+	The application server doesn't need to maintain client state locally between requests.
+State can be moved to shared infrastructure.
+For example:
+
+                         ┌──────────────┐
+                         │ Load Balancer     │
+                         └──────┬──────┘
+                                        │
+          ┌────────────┼────────────┐
+          ▼                         ▼                         ▼
+      Service 1     Service 2                    Service 3
+          │                            │                           │
+          └────────────┼────────────┘
+                                       ▼
+                  ┌─────────┐
+                  │  Redis        │
+                  └─────────┘
+                             │
+                            ▼
+                  ┌─────────┐
+                  │Database   │
+                  └─────────┘
+Now all application instances can access the same state.
+
+7. Example: Authentication
+This is a great example for your audience.
+Stateful approach
+Server stores:
+
+Session ID: ABC123
+User: Satish
+Role: ADMIN
+inside its memory.
+Then:
+
+Client
+   ↓
+Server 1
+   ↓
+Session ABC123
+The next request must reach Server 1.
+
+Stateless approach with JWT
+The client sends:
+
+Authorization: Bearer <JWT>
+The JWT contains claims such as:
+
+user = Satish
+role = ADMIN
+expiry = ...
+The server validates the token.
+Therefore:
+
+Request
+   ↓
+Server 1
+   ↓
+Validate JWT
+
+Request
+   ↓
+Server 2
+   ↓
+Validate JWT
+
+Request
+   ↓
+Server 3
+   ↓
+Validate JWT
+No server-specific session is required.
+
+8. Why Stateless is popular in Microservices
+This becomes particularly important when designing modern distributed systems.
+Imagine:
+
+                 Load Balancer
+                      │
+       ┌──────────────┼──────────────┐
+       ▼              ▼              ▼
+   Instance 1      Instance 2     Instance 3
+If instances are stateless, Kubernetes can easily:
+
+Scale out
+   ↓
+Add pods
+
+Scale in
+   ↓
+Remove pods
+
+Failure
+   ↓
+Replace pod
+For example:
+
+10 requests/sec
+      ↓
+3 pods
+
+1000 requests/sec
+      ↓
+30 pods
+The load balancer can distribute requests across all instances.
+
+9. Stateful vs Stateless — HLD Trade-offs
+Area	Stateful	Stateless
+Server remembers client state	Yes	No
+Request can hit any server	Usually difficult	Yes
+Horizontal scaling	More complex	Easier
+Load balancing	Sticky sessions often used	Simple distribution
+Server failure	State may be lost	Easier recovery
+Deployment	More complicated	Easier
+Kubernetes	More challenging	Very friendly
+Session management	Local/shared session	External token/store
+Complexity	Lower initially	Requires external state design
+Distributed systems	Less flexible	Generally preferred
+
+10. But Stateful Isn't Bad
+Stateful systems are not inherently bad.
+Some systems naturally need state.
+Examples:
+Databases
+
+Database
+   ↓
+Data
+   ↓
+Persistent state
+Obviously, a database must maintain state.
+Redis
+Redis maintains state in memory.
+Kafka
+Kafka maintains:
+	• Messages 
+	• Partitions 
+	• Offsets 
+	• Consumer state 
+WebSocket
+A long-lived connection may maintain connection-specific state.
+Gaming
+A game server may need to maintain:
+
+Player position
+Health
+Inventory
+Current game state
+So forcing everything to be stateless can actually make the architecture worse.
