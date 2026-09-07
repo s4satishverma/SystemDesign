@@ -98,9 +98,9 @@ Long Polling vs WebSockets..................Done
 
 Batch Processing vs Stream Processing..........Done
 
-Stateful vs Stateless Design
+Stateful vs Stateless Design......Done
 
-Strong Consistency vs Eventual Consistency
+Strong Consistency vs Eventual Consistency......Done
 
 Read-Through vs Write-Through Cache
 
