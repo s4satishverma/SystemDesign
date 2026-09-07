@@ -1,0 +1,301 @@
+Strong Consistency: After a successful write, every subsequent read sees the latest value.
+Eventual Consistency: After a successful write, different replicas may temporarily return different values, but they will eventually converge to the latest value.
+
+Imagine you have:
+
+Bank Balance = $1,000
+You withdraw: $200
+
+New balance: $800
+
+Now imagine the bank has multiple database replicas:
+
+             Primary
+                │
+        ┌───────┴───────┐
+        ▼               ▼
+    Replica 1       Replica 2
+The question is: What should happen if you immediately check your balance after withdrawing $200?
+This is where consistency models matter.
+
+Strong Consistency
+With strong consistency:
+
+Write: Balance = $800
+              ↓
+Replication / coordination
+              ↓
+           Read
+              ↓
+           $800
+Once the write is considered successful, the system guarantees that a subsequent read sees the latest committed value.
+
+Example
+
+User
+ │
+ │ Withdraw $200
+ ▼
+Service
+ │
+ ▼
+Database
+ │
+ ├── Primary = $800
+ ├── Replica 1 = $800
+ └── Replica 2 = $800
+Now:
+
+GET /balance
+       ↓
+    $800
+You don't want the user to see:
+
+$1,000
+after a successful withdrawal.
+
+ Eventual Consistency
+Now let's say replication happens asynchronously.
+
+                Primary
+                  │
+          Balance = $800
+                  │
+             Async replication
+              /           \
+             ▼             ▼
+       Replica 1       Replica 2
+        $800             $1,000
+Immediately after the write, a read might reach Replica 2:
+
+GET /balance
+      ↓
+   $1,000
+A short time later:
+
+Replica 2
+   ↓
+$800
+The replicas eventually converge.
+That's eventual consistency.
+
+ Why Would We Ever Accept That?
+Because distributed systems involve trade-offs.
+With eventual consistency, we can often get:
+	• Lower latency 
+	• Higher availability 
+	• Better scalability 
+	• Less coordination between replicas 
+	• Better performance across geographically distributed regions 
+For some applications, temporary stale data is completely acceptable.
+
+Example — Social Media Likes
+Imagine you like a post.
+
+Before:
+Likes = 10,000
+You click Like:
+
+Likes = 10,001
+But there are replicas around the world:
+
+             Database
+                 │
+       ┌─────────┼─────────┐
+       ▼         ▼         ▼
+      US        EU        Asia
+    Replica   Replica    Replica
+The update may take some time to propagate.
+Someone in Asia might temporarily see:
+
+10,000 likes
+while someone in the US sees:
+
+10,001 likes
+Is that a disaster?
+Probably not.
+A few seconds of difference in a social-media like count is generally acceptable.
+That's a good candidate for eventual consistency.
+
+ Strong Consistency Architecture
+A simplified architecture might look like:
+
+                 Client
+                   │
+                   ▼
+              Load Balancer
+                   │
+                   ▼
+                Service
+                   │
+                   ▼
+              ┌─────────┐
+              │ Primary │
+              └────┬────┘
+                   │
+             Synchronous
+             replication
+              /        \
+             ▼          ▼
+        Replica 1   Replica 2
+The system may require coordination before confirming the write.
+Benefit
+Reads see the latest committed data.
+Cost
+Coordination can increase:
+	• Latency 
+	• Network traffic 
+	• Complexity 
+	• Dependency on replica availability 
+
+Eventual Consistency Architecture
+With eventual consistency:
+
+                 Client
+                   │
+                   ▼
+              Load Balancer
+                   │
+                   ▼
+                Service
+                   │
+                   ▼
+              ┌─────────┐
+              │ Primary │
+              └────┬────┘
+                   │
+              Async Replication
+              /       |       \
+             ▼        ▼        ▼
+           US        EU       Asia
+         Replica   Replica   Replica
+The primary can acknowledge the write without waiting for every replica.
+Benefit
+Potentially:
+	• Lower write latency 
+	• Higher availability 
+	• Better geographic scalability 
+	• Better throughput 
+Trade-off
+Readers may temporarily see stale data.
+
+The Core HLD Trade-off
+This is what I would put on the screen:
+	Strong Consistency	Eventual Consistency
+Latest data immediately	 yes	No
+Stale reads possible	 No	Yes
+Read latency	Potentially higher	Usually lower
+Write latency	Potentially higher	Usually lower
+Availability during network issues	Can be lower	Often higher
+Scalability	More coordination	Easier
+Cross-region systems	More challenging	More natural
+Complexity	Coordination required	Conflict/convergence handling
+Best for	Money, critical state	Feeds, likes, analytics
+Important: These are architectural tendencies, not absolute rules. A particular database or consistency mechanism can change the exact behavior.
+
+Strong Consistency Isn't Always "Better"
+This is a very important interview point.
+You might think: "Strong consistency is safer, so why not use it everywhere?"
+Because consistency has a cost. Suppose you have:
+
+User in Toronto
+        ↓
+Toronto Service
+        ↓
+Toronto Database
+and another user in:
+
+London
+   ↓
+London Service
+   ↓
+London Database
+If every write must synchronously coordinate across Toronto and London:
+
+Toronto
+   ↕
+London
+you introduce network latency into the critical path.
+Now imagine:
+
+Toronto → London
+takes 80–100 ms.
+Every operation requiring cross-region coordination can become more expensive.
+At millions of requests per second, this matters enormously.
+
+CAP Theorem Connection
+In a distributed system, during a network partition, you generally have to choose between:
+
+Consistency
+      vs
+Availability
+This is the key CAP trade-off.
+
+Stronger consistency approach
+During a partition:
+
+Network Partition
+       ↓
+Cannot guarantee latest data
+       ↓
+Reject / delay some operations
+       ↓
+Protect consistency
+
+Availability-oriented approach
+
+Network Partition
+       ↓
+Continue serving requests
+       ↓
+Some data may be stale
+       ↓
+Reconcile later
+This is why eventual consistency is common in highly distributed systems.
+
+How Do We Handle Eventual Consistency?
+Versioning
+Version 10
+Version 11
+Version 12
+The system can determine which update is newer.
+
+Timestamps
+Update A → 10:00:01
+Update B → 10:00:03
+
+Conflict resolution
+For example:
+Last Write Wins or application-specific merge logic.
+
+Idempotency
+If an event is processed multiple times:
+
+Event A
+Event A
+Event A
+the final result should still be correct.
+
+Retry mechanisms
+Failed replication can be retried.
+
+Would you choose strong or eventual consistency?
+It depends on the business requirement.
+	For operations where stale data can cause financial loss, incorrect authorization, double spending, or inventory overselling, I would favor stronger consistency guarantees.
+	 For high-scale workloads such as social feeds, analytics, counters, recommendations, or search indexes, eventual consistency can provide better availability, latency, and scalability while accepting temporary staleness.
+
+
+             CONSISTENCY
+                         │
+        ┌───────────────┐
+        ▼                               ▼
+      STRONG             EVENTUAL
+        │                                 │
+   Latest data         Temporary stale
+   immediately          data allowed
+        │                                 │
+   More coordination     More scalable
+   More latency              Lower latency
+        │                               │
+        ▼                            ▼
+ Critical data          High-scale data
