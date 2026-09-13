@@ -102,7 +102,7 @@ Stateful vs Stateless Design......Done
 
 Strong Consistency vs Eventual Consistency......Done
 
-Read-Through vs Write-Through Cache
+Read-Through vs Write-Through Cache.............Done
 
 Push vs Pull Architecture
 
