@@ -1,0 +1,38 @@
+READ-THROUGH CACHE
+	• App only talks to the cache, never directly to the DB
+	• On a cache miss: cache itself fetches from DB, populates itself, returns value to app
+	• Analogy: librarian fetches book from archive once, keeps a copy at the front desk after
+	• Pro: simple app code — one path, "ask the cache"
+	• Con: cold cache penalty — first request for any key pays full DB latency
+
+WRITE-THROUGH CACHE
+	• App writes go to the cache first
+	• Cache synchronously pushes the write to DB before acknowledging back to app
+	• Cache and DB are always consistent at the moment the write completes
+	• Con: write latency — every write pays for two ops (cache + DB) before ack
+
+
+TRADE-OFF 1: LATENCY VS FRESHNESS
+	• Read-through: reads are fast after warm-up, but you accept staleness risk if the DB changes outside the cache path (e.g. a batch job writes directly to DB)
+	• Write-through: writes are slower (you are paying DB latency on every write), but reads are always fresh because cache and DB never diverge
+	• HLD framing: read-through optimizes read latency at the cost of read freshness; write-through optimizes freshness at the cost of write latency
+	
+TRADE-OFF 2: CONSISTENCY VS AVAILABILITY
+	• Write-through ties the cache's success to the DB's success — if the DB is slow or down, the write fails, so you inherit the DB's availability characteristics
+	• This matters in a CAP conversation: write-through pushes you toward consistency (C) even during normal operation, because you've architecturally coupled the two writes
+	• Read-through doesn't have this problem on the write path (there's no write-through cache write), but a read-through miss under DB failure means the read fails too — no fallback data
+	
+TRADE-OFF 3: FAILURE BLAST RADIUS
+	• Read-through: if the cache node dies, you lose the "shortcut" not the data — DB is still the source of truth, cache just repopulates on restart. Low blast radius.
+	• Write-through: if the cache dies mid-write after DB commit but before ack, or vice versa, you need to think about ordering and idempotency. 
+	
+TRADE-OFF 4: THROUGHPUT UNDER LOAD
+	• Read-through scales read throughput well once warm, since most traffic never reaches the DB
+	• Write-through does NOT reduce write throughput pressure on the DB - every write still hits the DB synchronously, so it doesn't help you scale writes, only keeps cache correct. If your bottleneck is write throughput, write-through alone doesn't solve it - that's where write-back (async) or a queue-based write buffer comes in, with its own durability trade-off
+	
+TRADE-OFF 5: OPERATIONAL COMPLEXITY
+	• Read-through is simpler to reason about and simpler to implement (most caching libraries like Spring Cache abstract this natively)
+	• Write-through requires you to handle partial failure paths explicitly
+	
+THE ONE SENTENCE THAT SUMS UP THE HLD DECISION
+Read-through trades staleness risk for read speed; write-through trades write latency for correctness and neither trade-off is free, so the real design skill is picking which cost your system can actually afford.
