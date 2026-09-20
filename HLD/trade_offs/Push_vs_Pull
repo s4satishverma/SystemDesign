@@ -1,0 +1,44 @@
+Push vs Pull — my notes to explain on camera
+1. Start with the one-line hook
+
+"Who tells who when there's new data — the server, or the client?"
+
+Push = server tells the client. ("Hey, something changed!")
+Pull = client asks the server. ("Anything new yet?")
+2. The analogy (say this early, it makes it click)
+Push = fire alarm. It goes off the second there's smoke. Nobody has to check.
+Pull = checking your mailbox. You walk out every morning whether a letter came or not.
+
+Both get you the information. The difference is how fast and how much effort it takes.
+
+3. How each one actually works (keep this short and visual)
+
+Push:
+
+Server sees something change
+Server sends it straight to the client (websocket, webhook, push notification)
+Client just receives it — no asking involved
+
+Pull:
+
+Client asks the server "anything new?" — on a timer
+Server replies "yes, here" or "nope, nothing"
+Repeat every X seconds/minutes
+4. The trade-offs (this is the meat of the video — one line each)
+Speed: Push is near-instant. Pull is only as fast as your polling interval.
+Server cost: Push means the server has to keep track of every connected client — expensive at scale. Pull is stateless, easy to scale and cache.
+Wasted effort: Pull often asks and gets "nothing new" — wasted requests. Push wastes nothing but keeps connections open even when idle.
+Client complexity: Push needs the client to handle reconnects if the connection drops. Pull is just a simple repeated request — easy to build.
+Network hiccups: Pull recovers easily — just try again next cycle. Push needs extra work to make sure no update gets lost mid-disconnect.
+5. The "senior answer" — say this near the end
+
+Don't pick a side. Real systems often mix both:
+
+A tiny push notification just says "go check now"
+The client then pulls the actual data
+
+This keeps things fast (push) but simple and scalable (pull) — best of both. This is the kind of answer that shows interview-level maturity.
+
+6. Closing line for viewers
+
+"So next time you design a system — don't ask 'push or pull.' Ask: how fresh does this data really need to be, and how many clients am I serving?"
