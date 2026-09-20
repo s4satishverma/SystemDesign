@@ -104,7 +104,7 @@ Strong Consistency vs Eventual Consistency......Done
 
 Read-Through vs Write-Through Cache.............Done
 
-Push vs Pull Architecture
+Push vs Pull Architecture...........Done
 
 REST vs RPC
 
