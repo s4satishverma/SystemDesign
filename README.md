@@ -106,7 +106,7 @@ Read-Through vs Write-Through Cache.............Done
 
 Push vs Pull Architecture...........Done
 
-REST vs RPC
+REST vs RPC.....................Done
 
 Synchronous vs Asynchronous Communication
 
