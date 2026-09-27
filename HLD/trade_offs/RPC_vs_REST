@@ -1,0 +1,101 @@
+Analogy: Ordering Food
+REST = Ordering from a menu at a restaurant.
+You don't tell the kitchen how to cook — you just say "I want the Butter Chicken" (a resource: /dishes/butter-chicken). The waiter (HTTP) takes your order using a fixed vocabulary: GET (show me the menu), POST (place a new order), PUT (change my order), DELETE (cancel it). Every restaurant in the world understands this protocol — that's the power of REST.
+RPC = Calling your friend who's a chef and telling them exactly what to do.
+"Hey, cookButterChicken(extraSpicy=true, servings=2)." You're not asking for a "resource" — you're invoking a function, almost like the two of you are speaking the same private code. It's fast, direct, and tailored — but only works if both sides speak that exact language.
+
+Core Technical Difference
+Aspect	REST	RPC
+Mental model	Resources (nouns)	Actions (verbs)
+Interface	Fixed verbs: GET/POST/PUT/DELETE	Custom methods: getUser(), chargeCard()
+Coupling	Loose — client/server evolve independently	Tighter — client often needs the exact method signature
+Payload	Usually JSON over HTTP	Often binary (Protobuf/Thrift) — smaller, faster
+Performance	Slightly heavier (HTTP overhead, text-based JSON)	Leaner, built for high-throughput internal calls
+Best for	Public APIs, third-party integrations	Internal microservice-to-microservice calls
+Example tech	HTTP + JSON (Richardson Maturity Model)	gRPC, Apache Thrift
+
+The HLD Trade-off 
+"It's not REST vs RPC — it's public contract vs internal speed."
+	• Choose REST when: 
+		○ You're exposing an API to external clients, partners, or a frontend team you don't control.
+		○ You need caching (REST plays beautifully with HTTP caching — CDNs, browser cache).
+		○ You want discoverability and a stable, long-lived contract (think: Stripe's API, still recognizable years later).
+	• Choose RPC (like gRPC) when: 
+		○ You're doing service-to-service calls inside your own infrastructure (e.g., Order Service → Inventory Service).
+		○ Latency matters — gRPC uses HTTP/2 + Protobuf, which is significantly faster and smaller than JSON over HTTP/1.1.
+		○ You need streaming (bi-directional), strong typing, and auto-generated client/server code across languages.
+Most large systems use both — REST/GraphQL at the "edge" (public-facing APIs), and gRPC internally between microservices. That hybrid answer is what separates a senior candidate from someone reciting definitions.
+
+"REST optimizes for interoperability and simplicity at the boundary of your system. RPC optimizes for performance and type-safety inside your system. A good architect doesn't pick one — they pick the right tool for the right boundary."
+
+
+Simple Implementation: REST vs RPC (Java / Spring Boot)
+Scenario: Order Service needs to fetch a user's details.
+
+REST Implementation (Spring Boot + HTTP/JSON)
+java
+// --- Server side: UserController.java ---
+@RestController
+@RequestMapping("/users")
+public class UserController {
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
+        UserDTO user = userService.findById(id);
+        return ResponseEntity.ok(user); // returns JSON
+    }
+}
+// --- Client side: calling it from Order Service ---
+@Service
+public class OrderService {
+    private final RestTemplate restTemplate;
+    public UserDTO fetchUser(Long userId) {
+        String url = "http://user-service/users/" + userId;
+        return restTemplate.getForObject(url, UserDTO.class);
+    }
+}
+What's happening: Order Service treats /users/{id} as a resource. It doesn't know or care how UserService fetches the data internally — it just knows "GET this URL, get JSON back." Loosely coupled, human-readable, easy to test with Postman/curl.
+
+RPC Implementation (gRPC + Protobuf)
+Step A — Define the contract (user.proto):
+protobuf
+syntax = "proto3";
+service UserService {
+    rpc GetUser (UserRequest) returns (UserResponse);
+}
+message UserRequest {
+    int64 id = 1;
+}
+message UserResponse {
+    int64 id = 1;
+    string name = 2;
+    string email = 3;
+}
+Step B — Server implementation:
+java
+@GrpcService
+public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
+    @Override
+    public void getUser(UserRequest request, StreamObserver<UserResponse> responseObserver) {
+        UserResponse response = UserResponse.newBuilder()
+                .setId(request.getId())
+                .setName("Sam Verma")
+                .setEmail("sam@example.com")
+                .build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+}
+Step C — Client (Order Service) calling it like a local method:
+java
+@Service
+public class OrderService {
+    @GrpcClient("user-service")
+    private UserServiceGrpc.UserServiceBlockingStub userStub;
+    public UserResponse fetchUser(Long userId) {
+        UserRequest request = UserRequest.newBuilder().setId(userId).build();
+        return userStub.getUser(request); // feels like calling a normal Java method
+    }
+}
+What's happening: Notice fetchUser() reads like Order Service is calling a local function — userStub.getUser(request) — even though it's crossing a network boundary. That's the RPC illusion: remote calls disguised as local method calls, backed by a strict binary contract (.proto file) instead of a loose JSON blob.
+
+
