@@ -108,7 +108,7 @@ Push vs Pull Architecture...........Done
 
 REST vs RPC.....................Done
 
-Synchronous vs Asynchronous Communication
+Synchronous vs Asynchronous Communication.......Done
 
 Latency vs Throughput
 
