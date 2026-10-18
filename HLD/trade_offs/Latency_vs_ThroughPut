@@ -1,0 +1,62 @@
+Latency vs Throughput 
+System design (HLD)
+The one-line idea
+	•	Latency = how long ONE request takes. (Speed of a single task)
+	•	Throughput = how many requests we finish per second. (Volume of work)
+Simple analogy: a highway
+	•	Latency = time for one car to go from A to B (say 30 mins).
+	•	Throughput = how many cars pass a point per hour.
+	•	Adding more lanes increases throughput. It does NOT make a single car faster.
+	•	Raising the speed limit reduces latency. It does not add capacity.
+They are related, but they are not the same thing.
+Units to remember
+	•	Latency: milliseconds (ms). Always talk in p50, p95, p99, not averages. Averages hide pain.
+	•	Throughput: requests per second (RPS/QPS), or MB/s.
+How they connect (Little's Law)
+Concurrent requests = Throughput × Latency
+Example: 1,000 RPS at 200 ms latency means about 200 requests in flight at once. If latency rises, the same traffic needs more threads and connections. This is why a slow dependency can bring down a whole system.
+Why it is a trade-off
+In HLD, improving one often hurts the other.
+Technique
+Throughput
+Latency
+Batching (group 100 messages, send together)
+Up
+Worse (each message waits for the batch)
+Async / queues (Kafka)
+Up
+Slower end-to-end response
+Caching (Redis)
+Up
+Better (faster reads, both win)
+Horizontal scaling
+Up
+No change (a single request is not faster)
+Replication and strong consistency
+Can go down
+Worse (wait for replicas to acknowledge)
+Compression
+Up (less data on the wire)
+Slightly worse (CPU cost)
+Load at 90%+ utilization
+Looks high
+Spikes badly (queues build up)
+Real examples
+	•	Kafka producer: linger.ms and batch size. Larger batches give higher throughput but add a few ms of latency. Set linger to 0 for low latency.
+	•	Payment API: needs low latency. The user is waiting, so every ms matters.
+	•	Nightly reports / data pipelines: need high throughput. Nobody cares if one record takes 2 seconds, as long as we process 10 million records in an hour.
+	•	Search or feed: both matter. We cache and precompute (fan-out on write) to keep reads fast at scale.
+
+Ask first: "Who is waiting, a human or a machine?"
+	•	Human waiting (checkout, login, search): optimize latency, set a p99 target.
+	•	Machine waiting (ETL, analytics, email sending): optimize throughput, use batching and queues.
+	•	Often we need both, so split the paths:
+	•	Keep the sync path thin and fast.
+	•	Push heavy work to async workers for throughput.
+Common mistakes
+	•	Scaling out servers to fix a latency problem. More machines do not speed up one request.
+	•	Reporting average latency. Always check p99.
+	•	Running systems at 100% capacity. Keep headroom (around 60-70%), because queueing delay explodes near the limit.
+	•	Batching everywhere without asking whether users are waiting.
+Interview-ready summary
+"Latency is the time per request. Throughput is the requests per second. I pick based on who is waiting. Humans need low latency, background systems need high throughput. I use caching and thin sync paths for latency, and batching, queues, and horizontal scaling for throughput."
