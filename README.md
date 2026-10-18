@@ -110,7 +110,7 @@ REST vs RPC.....................Done
 
 Synchronous vs Asynchronous Communication.......Done
 
-Latency vs Throughput
+Latency vs Throughput.......Done
 
 Top 15 Common Trade-offs – Balancing performance, cost, complexity, maintainability.
 
