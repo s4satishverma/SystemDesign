@@ -117,7 +117,7 @@ Latency vs Throughput.......Done
    
 Client-Server Architecture – Central server serving multiple clients.......Done
 
-Microservices Architecture – Independent services communicating via APIs.
+Microservices Architecture – Independent services communicating via APIs.......Done
 
 Serverless Architecture – Functions executed on demand without managing servers.
 
