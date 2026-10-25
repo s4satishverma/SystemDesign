@@ -1,0 +1,169 @@
+
+Definition
+Instead of building one giant application, you build many small, independent services. Each does one business job, owns its own data, and talks to the others through APIs (or messages).
+
+Shopping mall vs. one giant shop
+	• Monolith: one huge shop where one team runs billing, stock, delivery and customer support in a single building. If the power fails, the whole shop closes. To renovate one counter, you disturb everyone.
+	• Microservices: a mall with separate stores (food court, electronics, pharmacy). Each store has its own staff, stock and opening hours. If one store closes, the rest stay open. Each can be renovated or expanded independently.
+	• The mall’s security desk and directory board play the role of the API Gateway and Service Discovery .
+
+Monolith vs. Microservices
+	• Code: monolith is one codebase, microservices are many small codebases.
+	• Deployment: monolith deploys everything together, microservices deploy each service on its own.
+	• Scaling: monolith scales the whole app, microservices scale only the busy service.
+	• Technology: monolith uses one stack, microservices allow different stacks per service.
+	• Database: monolith usually has one shared database, microservices have one database per service.
+	• Failure: a monolith bug can bring down everything, a microservice failure can retain whole app and bring down chunk only.
+	• Complexity: a monolith is simpler to start, microservices are more complex to run.
+Example: an online shopping app
+Services (each is its own small application):
+	• User Service (accounts, login)
+	• Product Service (catalog)
+	• Cart Service
+	• Order Service
+	• Payment Service
+	• Inventory Service
+	• Notification Service (email, SMS)
+Flow when you click “Buy”:
+Client → API Gateway → Order Service
+Order Service → asks Inventory Service “is it in stock?”
+Order Service → asks Payment Service to charge the card
+Order Service → publishes “OrderPlaced” event → Notification Service sends the email
+
+Key characteristics (the core principles)
+	1. Small and focused: each service does one thing well (single responsibility).
+	2. Organized around business capabilities: services are split by business function (Payments, Orders), not by technical layer (UI team, database team).
+	3. Independently deployable: you can release one service without redeploying the rest.
+	4. Loosely coupled: services know each other only through public APIs, never through each other’s internals or databases.
+	5. Own their data (decentralized data management): each service has its own database, and no one else touches it directly.
+	6. Smart endpoints, dumb pipes: the intelligence lives in the services. The communication channel (HTTP, message broker) just carries messages.
+	7. Decentralized governance: teams choose the best language and tools for their service (polyglot).
+	8. Infrastructure automation: CI/CD, containers and automated testing are a must, not optional.
+	9. Design for failure: assume any service can fail at any time and build the system to survive it.
+	10. Evolutionary design: the system grows and changes service by service over time.
+	11. Small autonomous teams: often described as “you build it, you run it”, with one team owning a service end to end.
+
+The main building blocks (components of a microservices system)
+	• Services: the small business-focused applications.
+	• API Gateway: the single front door for clients. It routes requests to the right service and also handles authentication, rate limiting, SSL termination, and combining responses. Analogy: the mall’s reception desk.
+	• Service Discovery: a live directory of where each service is running (addresses change as instances start and stop). Analogy: the mall directory board. Examples: Eureka, Consul, Kubernetes DNS.
+	• Load Balancer: spreads traffic across multiple copies of the same service.
+	• Message Broker / Event Bus: carries asynchronous messages between services. Examples: Kafka, RabbitMQ, SQS.
+	• Data stores: one database per service, and different types are allowed (SQL, NoSQL, cache, search).
+	• Container platform / Orchestrator: packages services (Docker) and runs, scales and heals them (Kubernetes). In the Azure guide this is called “management/orchestration”.
+	• Configuration Server: central place for settings, so you don’t hard-code them.
+	• Identity Provider: handles login and tokens (OAuth2, JWT, OpenID Connect).
+	• CDN: serves static content (images, files) from locations near users.
+	• Monitoring and Observability stack: logs, metrics, tracing and alerts.
+
+How services talk to each other
+1. Synchronous (request and wait)
+	• REST over HTTP, or gRPC.
+	• Analogy: a phone call. You wait for the answer.
+	• Good for: “I need the answer right now” (check stock, validate user).
+	• Risk: if the other service is slow or down, you are stuck. Chains of calls make this worse.
+2. Asynchronous (send and move on)
+	• Messages or events via a broker (Kafka, RabbitMQ).
+	• Analogy: a WhatsApp message or a letter. You send it and carry on.
+	• Good for: notifications, order processing, analytics, anything that can happen “soon” rather than “now”.
+	• Benefit: services stay decoupled and can absorb spikes in traffic.
+Rule of thumb: use sync when you need an immediate answer, async when you can afford to wait.
+
+Data management (the trickiest part)
+	• Database per service: a service’s data is private, and others must ask through its API.
+	• No cross-service joins or distributed ACID transactions (they are hard and slow at scale).
+	• Eventual consistency: data across services becomes consistent after a short delay rather than instantly.
+	• Saga pattern: a business transaction that spans services is broken into local steps. If one step fails, “compensating” actions undo the earlier ones. Example: payment succeeds but stock is unavailable, so the system refunds the payment.
+	• CQRS: separate models for writing data and for reading data, to make reads fast.
+	• Event Sourcing: store every change as an event instead of only the final state.
+	• API Composition: an aggregator calls several services and merges the results for one screen.
+	• Outbox pattern: guarantees a database update and the event announcing it never get out of sync.
+
+Resilience (surviving failures)
+	• Timeouts: don’t wait forever.
+	• Retries with backoff: try again, but wait longer each time.
+	• Circuit Breaker: if a service keeps failing, stop calling it for a while (like an electrical fuse) and use a fallback. Example: Resilience4j.
+	• Fallbacks and graceful degradation: show cached or default data instead of an error.
+	• Idempotency: repeating the same request doesn’t cause duplicate effects (no double charging).
+	• Health checks and self-healing: the orchestrator restarts unhealthy instances automatically.
+	• Redundancy: run multiple instances of every service.
+
+Scalability
+	• Scale each service independently, for example 20 copies of Search and 2 of Admin.
+	• Horizontal scaling (add more instances) rather than only bigger machines.
+	• Auto-scaling based on CPU or traffic.
+	• Stateless services: any instance can serve any request, which makes scaling easy. State lives in databases or caches.
+
+Deployment and DevOps
+	• Containers (Docker) package a service with everything it needs.
+	• Kubernetes manages many containers.
+	• CI/CD pipelines, one per service, for automated build, test and release.
+	• Release strategies: blue-green, canary and rolling deployments reduce risk.
+	• Infrastructure as Code keeps environments repeatable.
+	• API versioning: old and new versions coexist so you don’t break other services.
+
+Observability (seeing what’s happening)
+	• Centralized logging: all logs in one searchable place ( Splunk).
+	• Metrics: CPU, latency, error rate (Grafana).
+	• Distributed tracing: follow one request across many services (OpenTelemetry, Zipkin) using a correlation or trace ID.
+	• Alerting: get notified before customers complain.
+
+Security
+	• Authentication at the gateway (OAuth2, JWT).
+	• Service-to-service security
+	• Least privilege access and secrets management (Vault, cloud secret managers).
+	• Input validation and rate limiting.
+	• Remember: more services means more network paths, so a bigger attack surface to protect.
+
+Useful supporting patterns
+	• Strangler Fig: gradually replace a monolith piece by piece, like a vine growing around a tree.
+	• Backend for Frontend (BFF): a tailored gateway per client type (mobile vs web).
+	• Sidecar and Service Mesh: a helper alongside each service handling networking, security and observability (Istio, Linkerd).
+	• Anti-Corruption Layer: protects a new service from the messy design of a legacy system.
+	• Domain-Driven Design (DDD): use “bounded contexts” to decide where service boundaries should be.
+
+Benefits
+	• Independent deployment: faster, safer releases.
+	• Independent scaling: save cost by scaling only what’s busy.
+	• Fault isolation: one failure doesn’t take down everything.
+	• Technology freedom: the right tool for each job.
+	• Team autonomy: teams move in parallel with fewer conflicts.
+	• Easier to understand each piece: small codebases are easier to learn and maintain.
+	• Easier to replace or rewrite a single service.
+
+Challenges
+	• Distributed system complexity: network calls fail and are slower than in-process calls.
+	• Data consistency: no simple transactions across services.
+	• Operational overhead: you manage dozens of deployments, pipelines and dashboards.
+	• Testing is harder: integration and end-to-end testing across services.
+	• Debugging is harder: one request touches many services.
+	• Latency: many hops add delay.
+	• Service versioning: too many services become a mess.
+	• Needs a DevOps culture and skilled teams.
+	• Higher infrastructure cost at small scale.
+
+Best practices
+	• Define boundaries by business domain, not technical layers.
+	• Keep services small but not tiny. Too many “nano-services” is its own problem.
+	• Never share a database between services.
+	• Design APIs carefully and treat them as contracts.
+	• Prefer async communication where possible to reduce coupling.
+	• Automate everything (build, test, deploy).
+	• Build observability in from day one.
+	• Plan for failure with circuit breakers, retries and timeouts.
+	• Start with a well-structured monolith if the team is small, then split when needed.
+
+When to use it
+	• Large, complex applications with many teams
+	• Parts of the system with very different scaling needs
+	• Need for frequent, independent releases
+	• Long-lived products that will keep evolving
+
+When NOT to use it
+	• Small teams or simple apps
+	• Early-stage startups still discovering the product
+	• Teams without DevOps or automation maturity
+	• Applications that need strong transactional consistency everywhere
+
+Quick recap
+Microservices = many small, independent, business-focused services, each with its own data, talking through APIs or events, deployed and scaled separately. You gain flexibility and resilience, and you pay with complexity.
