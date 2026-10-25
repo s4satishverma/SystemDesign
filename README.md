@@ -112,12 +112,10 @@ Synchronous vs Asynchronous Communication.......Done
 
 Latency vs Throughput.......Done
 
-Top 15 Common Trade-offs – Balancing performance, cost, complexity, maintainability.
-
 
 4. Architectural Patterns
    
-Client-Server Architecture – Central server serving multiple clients.
+Client-Server Architecture – Central server serving multiple clients.......Done
 
 Microservices Architecture – Independent services communicating via APIs.
 
