@@ -1,0 +1,84 @@
+Serverless = you write the function, the cloud runs it only when needed, and you pay only for the time it runs.
+
+“Serverless” doesn’t mean there are no servers. There are servers, but someone else manages them.
+
+Analogy
+                     Own Car (Traditional Server)	                          Taxi / Uber (Serverless)	
+Who buys it?	You	Nobody, it’s shared
+Maintenance	You (oil, tires, insurance)	The company
+Cost when parked	Still paying	Zero
+Rush hour	Only one car	More taxis appear automatically
+
+
+How it works
+User clicks → API Gateway → Function (runs) → Database → Response
+                               ↑
+                    Starts only on request,
+                    shuts down after finishing
+Step by step:
+	1. An event happens (an HTTP call, a file upload, a Kafka message, a timer).
+	2. The cloud spins up your function.
+	3. The function does its one job.
+	4. The function shuts down.
+	5. You are billed only for those milliseconds.
+
+Building blocks
+	• FaaS (Function as a Service): your code, e.g. AWS Lambda, Azure Functions, Google Cloud Functions
+	• BaaS (Backend as a Service): managed DB, auth, storage, e.g. DynamoDB, Cognito, S3
+	• API Gateway: the front door that routes requests to functions
+	• Event sources: what triggers the function (HTTP, S3 upload, SQS/Kafka, cron)
+
+Why companies love it
+	• No server management: no patching, no OS, no capacity planning
+	• Auto-scaling: 1 request or 1 million, the cloud handles it
+	• Pay per use: idle time costs nothing
+	• Faster delivery: developers focus on business logic
+
+The catch
+	• Cold start: the first request after idle is slower because the function has to boot. This is especially noticeable with Java and Spring Boot.
+	• Time limits: Lambda caps at 15 minutes per run, so no long jobs.
+	• Stateless: a function can’t remember anything between runs. State must live in a DB or cache.
+	• Vendor lock-in: you get tied to one cloud’s ecosystem.
+	• Hard to debug locally: distributed and event-driven flows are harder to trace.
+	• Cost surprise: at constant heavy traffic, always-on servers can be cheaper.
+
+Trade Off
+Use it for:
+	• Spiky or unpredictable traffic
+	• Event-driven work (image resize, email send, file processing)
+	• Scheduled jobs and webhooks
+	• MVPs and startups
+Avoid it for:
+	• Long-running processes
+	• Ultra low-latency needs (trading, gaming)
+	• Steady, high, predictable load
+	• Heavy in-memory or stateful workloads
+
+Example: image upload pipeline
+User uploads photo → S3 bucket
+                        │ (event)
+                        ▼
+                 Lambda: resize image
+                                          │
+          ┌─────────────┴─────────────┐
+          ▼                                                           ▼
+   Save thumbnail to S3     Save metadata to DynamoDB
+                                       │
+                                      ▼
+                           Lambda: notify user (SNS)
+There are no servers running while nobody uploads. At 10,000 uploads in a minute, Lambda scales out automatically.
+
+Java / Spring Boot angle
+The biggest issue is cold start, because the JVM is slow to boot. The fixes for it:
+	• AWS Lambda SnapStart: snapshots the initialized JVM so restores are fast
+	• Spring Cloud Function: write plain Function<I, O> beans that deploy to any cloud
+	• Keep functions small, single-purpose, and with few dependencies
+	• Use provisioned concurrency for latency-critical paths
+
+Rule of thumb: Start serverless for speed and cost. Move to containers when load becomes steady and predictable.
+
+
+
+
+
+
