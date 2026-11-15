@@ -119,7 +119,7 @@ Client-Server Architecture – Central server serving multiple clients.......Don
 
 Microservices Architecture – Independent services communicating via APIs.......Done
 
-Serverless Architecture – Functions executed on demand without managing servers.
+Serverless Architecture – Functions executed on demand without managing servers.........Done
 
 Event-Driven Architecture – Components communicate via events.
 
