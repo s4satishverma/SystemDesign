@@ -4,10 +4,10 @@ Serverless = you write the function, the cloud runs it only when needed, and you
 
 Analogy
                      Own Car (Traditional Server)	                          Taxi / Uber (Serverless)	
-Who buys it?	You	Nobody, it’s shared
-Maintenance	You (oil, tires, insurance)	The company
-Cost when parked	Still paying	Zero
-Rush hour	Only one car	More taxis appear automatically
+Who buys it?	       	You            												Nobody, it’s shared
+Maintenance				You (oil, tires, insurance)								The company
+Cost when parked		Still paying												Zero
+Rush hour				Only one car											More taxis appear automatically
 
 
 How it works
@@ -59,13 +59,13 @@ User uploads photo → S3 bucket
                         │ (event)
                         ▼
                  Lambda: resize image
-                                          │
+                        │
           ┌─────────────┴─────────────┐
-          ▼                                                           ▼
+          ▼                           ▼
    Save thumbnail to S3     Save metadata to DynamoDB
-                                       │
-                                      ▼
-                           Lambda: notify user (SNS)
+                        │
+                        ▼
+                    Lambda: notify user (SNS)
 There are no servers running while nobody uploads. At 10,000 uploads in a minute, Lambda scales out automatically.
 
 Java / Spring Boot angle
